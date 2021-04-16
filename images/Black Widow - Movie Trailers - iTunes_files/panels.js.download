@@ -1,0 +1,42 @@
+/*global define */
+
+define([
+    'marionette'
+  ], function (Marionette) {
+    'use strict';
+
+	// Panel Controller
+	return Marionette.Controller.extend({
+		initialize: function(options){
+            this.region         = options.region;
+            this.panels         = options.panels;
+            this.collection     = options.collection;
+            this.tabs           = options.tabs;
+            this.featured       = options.featured;
+
+            this.setInitial();
+        },
+        hidePanel: function(){
+            this.region.$el.slideUp('fast').animate(
+                { opacity: 0 },
+                { queue: false, duration: 'fast' }
+            );
+        },
+        showPanel: function(){
+            this.region.$el.slideDown('fast').animate(
+                { opacity: 1 },
+                { queue: false, duration: 'fast' }
+            );
+        },
+        setInitial: function(initial_panel){
+            var current_model = (initial_panel && typeof this.panels[initial_panel] !== 'undefined') ? this.panels[initial_panel] : this.panels[(this.featured)?'related':'details'];
+            this.region.show(current_model);
+            this.tabs.setActiveTab(current_model.model);
+       },
+       swapPanels: function(model){
+         this.panel = model.attributes.panel_name.toLowerCase();
+         this.region.show(this.panels[this.panel]);
+       }
+    });
+
+});

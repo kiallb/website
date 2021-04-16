@@ -1,0 +1,1643 @@
+define(['Cookies'], function (Cookies) {  'use strict'; window.corePlayer = function(options) {
+    // Keep the global scope clean
+    return new Player(options);
+};
+
+
+window.corePlayer.getInternetExplorerVersion = function() {
+    var rv = -1;
+    var ua = navigator.userAgent;
+    var re = null;
+    if (navigator.appName == 'Microsoft Internet Explorer') {
+        re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+        if (re.exec(ua) !== null)
+            rv = parseFloat(RegExp.$1);
+    } else if (navigator.appName == 'Netscape') {
+        re = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+        if (re.exec(ua) !== null)
+            rv = parseFloat(RegExp.$1);
+    }
+    return rv;
+};
+
+//REMOVING SUPPORT FOR QUICKTIME PLUGIN 
+// window.corePlayer.hasQt = function() {
+	// var haveqt = false;
+	// if ("ActiveXObject" in window) {
+	//   var control = null;
+	//   try {
+	//     control = new ActiveXObject('QuickTime.QuickTime');
+	//   } catch (e) {
+	//     // Do nothing
+	//   }
+	//   if (control) {
+	//     // In case QuickTimeCheckObject.QuickTimeCheck does not exist
+	//     haveqt = true;
+	//   }
+	// }
+
+	// if (navigator.plugins) {
+	//     for (i=0; i < navigator.plugins.length; i++ ) {
+	//         if (navigator.plugins[i].name.indexOf
+	//         ("QuickTime") >= 0)
+	//         { haveqt = true; }
+	//     }
+	// }
+
+	// if ((navigator.appVersion.indexOf("Mac") > 0) && (navigator.appName.substring(0,9) == "Microsoft") && (parseInt(navigator.appVersion) < 5) )
+	// { haveqt = true; }
+
+	// if (!haveqt){
+	// 	haveqt = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+	// }
+    // return haveqt;
+
+	//Return TRUE, when the browser is Safari and can nativly support Quicktime .mov files.
+// };
+
+window.corePlayer.isSafari = function() {
+    return (!!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/))
+};
+
+
+window.corePlayer.videoSupport = function(){
+
+    var testEl = document.createElement( "video" );
+    var results = {};
+
+    if ( testEl && testEl.canPlayType ) {
+        // Check for MPEG-4 support
+        results.mpeg4 = "" !== testEl.canPlayType( 'video/mp4; codecs="mp4v.20.8"' );
+
+        // Check for h264 support
+        results.h264 = "" !== ( testEl.canPlayType( 'video/mp4; codecs="avc1.42E01E"' ) || testEl.canPlayType( 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"' ) );
+
+        // Check for Ogg support
+        results.ogg = "" !== testEl.canPlayType( 'video/ogg; codecs="theora"' );
+
+        // Check for Webm support
+        results.webm = "" !== testEl.canPlayType( 'video/webm; codecs="vp8, vorbis"' );
+
+        // Check for native HLS support
+        results.hls = "" !== testEl.canPlayType('application/vnd.apple.mpegurl');
+
+    }
+    return results;
+}();
+
+
+// ==================================================================================
+// Player - Native Player with Quicktime Fallback
+// =========================================
+function Player(instance_options) {
+
+    // Setup default options
+    this._settings = {
+        video       : '.video-element',
+        poster      : '.video-poster',
+        loader      : '#video-loader',
+        close       : '.close-overlay',
+        model       : {},
+        videoWrap   : '.video-wrapper'
+    };
+
+    // Extend Default Options
+    if(instance_options !== undefined) {
+        for (var option in instance_options) {
+            if (!instance_options.hasOwnProperty(option)) continue;
+            this._settings[option] = instance_options[option];
+        }
+    }
+
+    this.initalize();
+}
+
+Player.prototype = new Tower();
+
+
+// Initialize Player
+// =========================================
+Player.prototype.initalize = function() {
+
+
+    this.video          = document.querySelector(this._settings.video);
+    this.wrapper        = this.video.parentNode;
+    this.model          = this._settings.model;
+    this.videoModel     = this._settings.model.versions[this._settings.local].sizes;
+    // this.close          = document.querySelector(this._settings.close);
+
+    this._listeners     = {};
+    this._dimensions    = this.getRatioSize(this.video.offsetWidth,
+                                            this.video.offsetHeight, 848, 2000);
+
+    this.setLoader(this._settings.loader);
+    this.setPoster(this._settings.poster);
+
+    var ua = navigator.userAgent;
+    this.iPad = ua.match(/iPad/i) !== null || /iPad/i.test(ua) || /iPhone OS 3_1_2/i.test(ua) || /iPhone OS 3_2_2/i.test(ua);
+    this.android = /android/i.test(ua);
+
+    if(this.iPad) { //|| this.android
+        this.video.setAttribute('controls', true);
+    }
+    else {
+        this.controls = new Controls();
+    }
+
+
+    this.metaReadyBind = this.metaReady.bind(this);
+    this.videoReadyBind = this.videoReady.bind(this);
+    this.videoReadyBind = this.videoReady.bind(this);
+    this.videoPlayBind = this.videoPlay.bind(this);
+    this.videoPauseBind = this.videoPause.bind(this);
+    this.videoEndBind = this.videoEnd.bind(this);
+    this.videoUpdateTimeBind = this.videoUpdateTime.bind(this);
+    this.togglePlayBind = this.togglePlay.bind(this);
+    this.videoForwardBind = this.videoForward.bind(this);
+    this.videoReverseBind = this.videoReverse.bind(this);
+    this.toggleSizeBind = this.toggleSize.bind(this);
+    this.setResolutionBind = this.setResolution.bind(this);
+    this.toggleFullscreenBind = this.toggleFullscreen.bind(this);
+    this.showAirplayMenuBind = this.showAirplayMenu.bind(this);
+    this.updatePipBind = this.updatePip.bind(this);
+    this.setVolumeBind = this.setVolume.bind(this);
+    this.setPlayheadBind = this.setPlayhead.bind(this);
+    this.videoResumeBind = this.videoResume.bind(this);
+    this.videoReplayBind = this.videoReplay.bind(this);
+    this.updateFullscreenBind = this.updateFullscreen.bind(this);
+    this.sendAirplayChangeBind = this.sendAirplayChange.bind(this);
+    this.keyUppedBind = this.keyUpped.bind(this);
+    // this.loadQuicktimeBind = this.loadQuicktime.bind(this);
+    this.loadNativeBind = this.loadNative.bind(this);
+
+    this.setSources();
+
+};
+
+
+Player.prototype.getVideoSrc = function() {
+    var srcType = 'srcAlt';
+    if((this.videoModel.is_hls && window.corePlayer.videoSupport.hls) || window.corePlayer.isSafari()) {
+        srcType = 'src';
+    }
+    return this.videoModel[this.resolution][srcType];
+};
+
+// Set Load Events
+// =========================================
+Player.prototype.setSources = function(){
+
+    this.sources    = this.video.querySelectorAll('source');
+    this.lastSource = this.sources[this.sources.length-1];
+
+    if (this.videoModel.is_hls && window.corePlayer.videoSupport.hls) {
+        this.resolution = (Cookies.get('trailers_res')) ? Cookies.get('trailers_res') : 'sd';
+
+        this.video.setAttribute('src',this.getVideoSrc());
+
+        if (!this.iPad){
+            this.resolutionWidth    = this.videoModel[this.resolution].width;
+            this.resolutionHeight   = this.videoModel[this.resolution].height;
+            this.sizeUp();
+        }
+    }
+    else {
+        if(!this.iPad){
+            this.resolution = (Cookies.get('trailers_res')) ? Cookies.get('trailers_res') : 'sd';
+            if(this.resolution) {
+                this.lastSource.setAttribute('src',this.getVideoSrc());
+                this.resolutionWidth    = this.videoModel[this.resolution].width;
+                this.resolutionHeight   = this.videoModel[this.resolution].height;
+                this.sizeUp();
+            }
+        }
+    }
+
+    this.setLoadEvents();
+    this.setEvents();
+
+};
+
+
+Player.prototype.setLoadEvents = function(){
+
+    this.video.addEventListener('canplay',       this.loadNativeBind,     false);
+    this.loadEventsActive = true;
+
+};
+Player.prototype.unsetLoadEvents = function(){
+    if(this.loadEventsActive){
+        this.video.removeEventListener('canplay',        this.loadNativeBind,     false);
+    }
+};
+
+// Load the appropriate interface
+// =========================================
+Player.prototype.loadNative = function(){
+
+
+    this.videoInterface = new NativeVideo({
+        video:          this.video,
+        player:         this,
+        videoSource:    this.lastSource // Works since there is only one source. Should be more robust in the future
+    });
+    this.isActive = true;
+
+    // this.supportsPIP = true; // (typeof this.video.webkitSupportsPresentationMode === "function" && this.video.webkitSupportsPresentationMode("picture-in-picture"));
+    if (this.videoInterface && this.videoInterface.supportsPIP){
+        this.controls.showPip();
+    }
+};
+
+// Build the appropriate fallback
+// =========================================
+// Player.prototype.loadQuicktime = function(event){
+//     if(!this.quicktimeLoaded){ // Stop older browsers from loading for each bad source
+
+//         this.videoInterface = new QTVideo({
+//             video:          this.video,
+//             player:         this,
+//             videoSource:    this.lastSource
+//         });
+//         this.quicktimeLoaded = true;
+//         this.controls.disableFullScreen();
+//         if (this.isOldIE()) {
+//             this.controls.disableResolution();
+//         }
+
+//     }
+//     this.isActive = true;
+// };
+
+
+
+// ==================================================================================
+// Mission Control :: Core Player
+// =========================================
+Player.prototype.setEvents = function() {
+
+    this.addListener('video:meta',                              this.metaReadyBind);
+    this.addListener('video:ready',                             this.videoReadyBind);
+    this.addListener('video:canPlay',                             this.videoReadyBind);
+    this.addListener('video:play',                              this.videoPlayBind);
+    this.addListener('video:pause',                             this.videoPauseBind);
+    this.addListener('video:end',                               this.videoEndBind);
+    this.addListener('video:timeupdate',                        this.videoUpdateTimeBind);
+
+    if(this.controls){
+        this.controls.addListener('control:click:play',             this.togglePlayBind);
+        this.controls.addListener('control:click:forward',          this.videoForwardBind);
+        this.controls.addListener('control:click:reverse',          this.videoReverseBind);
+        this.controls.addListener('control:sizeup',                 this.toggleSizeBind);
+        this.controls.addListener('control:resolution',             this.setResolutionBind);
+        this.controls.addListener('control:fullscreen',             this.toggleFullscreenBind);
+        this.controls.addListener('control:airplay',                this.showAirplayMenuBind);
+        this.controls.addListener('control:pip',                    this.updatePipBind);
+
+        this.controls.volume.wrapper.on('slider::dragged',          this.setVolumeBind);
+        this.controls.scrubber.wrapper.on('slider::dragged',        this.setPlayheadBind);
+        this.controls.scrubber.wrapper.on('slider::end_drag',       this.videoResumeBind);
+    }
+
+    this.addListener('poster:play:clicked',                     this.videoReplayBind);
+
+    // Native Listeners
+    var resizeTimer,
+        that = this;
+    $(window).on('resize', function(){
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function(){
+            if (!that.isFullscreen){
+                that.sizeUp();
+            }
+        }, 300);
+    });
+
+    this.pipInterval = setInterval(function() {
+        if (that.videoInterface && that.videoInterface.supportsPIP) {
+            that.controls.setPresentationMode(that.videoInterface.getPresentationMode());
+        }
+    }, 500);
+
+    this.wrapper.addEventListener('webkitfullscreenchange',     this.updateFullscreenBind);
+    $(document).on('mozfullscreenchange',        this.updateFullscreenBind);
+    this.wrapper.addEventListener('fullscreenchange',           this.updateFullscreenBind);
+    if (window.WebKitPlaybackTargetAvailabilityEvent) {
+        this.video.addEventListener('webkitplaybacktargetavailabilitychanged', this.sendAirplayChangeBind);
+    }
+
+    $(document).on('keyup',                                  this.keyUppedBind);
+};
+
+Player.prototype.unsetEvents = function() {
+    this.removeListener('video:meta',                           this.metaReadyBind);
+    this.removeListener('video:ready',                          this.videoReadyBind);
+    this.removeListener('video:canPlay',                          this.videoReadyBind);
+    this.removeListener('video:play',                                this.videoPlayBind);
+    this.removeListener('video:pause',                              this.videoPauseBind);
+    this.removeListener('video:end',                                 this.videoEndBind);
+    this.removeListener('video:timeupdate',                     this.videoUpdateTimeBind);
+
+    if(this.controls){
+        this.controls.removeListener('control:click:play',          this.togglePlayBind);
+        this.controls.removeListener('control:click:forward',       this.videoForwardBind);
+        this.controls.removeListener('control:click:reverse',       this.videoReverseBind);
+        this.controls.removeListener('control:sizeup',              this.toggleSizeBind);
+        this.controls.removeListener('control:resolution',          this.setResolutionBind);
+        this.controls.removeListener('control:fullscreen',          this.toggleFullscreenBind);
+        this.controls.removeListener('control:airplay',             this.showAirplayMenuBind);
+        this.controls.removeListener('control:pip',                 this.updatePipBind);
+
+        this.controls.volume.wrapper.off('slider::dragged',         this.setVolumeBind);
+        this.controls.scrubber.wrapper.off('slider::dragged',       this.setPlayheadBind);
+        this.controls.scrubber.wrapper.off('slider::end_drag',      this.videoResumeBind);
+        clearInterval(this.bufferPoll);
+    }
+
+    this.removeListener('poster:play:clicked',                  this.videoReplayBind);
+
+    // Native Listeners
+    $(window).off("resize");
+    this.wrapper.removeEventListener('webkitfullscreenchange',  this.updateFullscreenBind);
+    $(document).off('mozfullscreenchange',                      this.updateFullscreenBind);
+    this.wrapper.removeEventListener('fullscreenchange',        this.updateFullscreenBind);
+    if (window.WebKitPlaybackTargetAvailabilityEvent) {
+        this.video.removeEventListener('webkitplaybacktargetavailabilitychanged', this.sendAirplayChangeBind);
+    }
+
+    $(document).off('keyup');
+
+    if (this.pipInterval) {
+        clearInterval(this.pipInterval);
+        this.pipInterval = null;
+    }
+};
+
+// Send to Controls
+// =========================================
+Player.prototype.metaReady = function(){
+};
+
+Player.prototype.videoReady = function(){
+    if(this.controls) this.controls.scrubber.setTrack(this.videoInterface.duration);
+    this.isActive = true;
+    this.initVolume(1);
+    if (!this.bufferPol){
+        this.bufferPoll = setInterval(this.videoBuffer.bind(this), 200);
+    }
+
+};
+
+Player.prototype.videoPlay = function(){
+    if(this.controls) this.controls.scrubber.setTrack(this.videoInterface.duration);
+    this.unsetLoadEvents();
+
+    this.isPlaying = true;
+    this.isActive = true;
+
+    if(this.controls) this.controls.setPause();
+    // $(this.close).fadeOut('fast');
+    this.hideLoader();
+    this.hidePoster();
+};
+
+Player.prototype.videoPause = function(){
+
+    if(this.controls) this.controls.setPlay();
+    // $(this.close).fadeIn('fast');
+    this.isPlaying = false;
+};
+
+Player.prototype.videoEnd = function(){
+    this.wasPlaying = false;
+    this.hideControls();
+    this.showPoster(true);
+    // $(this.close).fadeIn('fast');
+    if(this.isFullscreen) {
+        this.exitFullscreen();
+    }
+    this.videoInterface.setPresentationMode("inline");
+    this.controls.setPresentationMode("inline");
+    this.isActive = false;
+};
+
+Player.prototype.videoUpdateTime = function( ){
+
+    var position = this.videoInterface.currentTime/this.videoInterface.duration;
+    if(this.controls) this.controls.scrubber.setPosition(position);
+    if(this.controls) this.controls.setPlayTimes(this.videoInterface.currentTime);
+};
+
+Player.prototype.videoBuffer = function() {
+    var ratio = this.videoInterface ? this.videoInterface.getBufferRatio() : false;
+    if(this.controls) this.controls.scrubber.setBufferPosition(ratio);
+};
+
+Player.prototype.keyUpped = function(e){
+    if(e.keyCode == 32) this.togglePlay(); // Space
+};
+Player.prototype.keyPressed = function(e){
+    if(e.keyCode == 18 || e.keyCode == 17 || e.keyCode == 91  || e.keyCode == 224 ) {
+        if(this.isFullscreen) this.exitFullscreen(); //CTRL ALT ETC
+    }
+};
+
+// Send to videoInterface
+// =========================================
+Player.prototype.videoReplay = function(){
+    this.hidePoster();
+    this.videoInterface.replayVideo();
+    this.showControls();
+};
+
+Player.prototype.videoResume = function(){
+    if(this.wasPlaying) {
+        this.videoInterface.playVideo();
+        this.wasPlaying = false;
+    }
+};
+
+Player.prototype.togglePlay = function(){
+    if(this.isPlaying)  this.videoInterface.pauseVideo();
+    else this.videoInterface.playVideo();
+};
+
+Player.prototype.videoForward = function(){
+    this.videoInterface.forwardVideo(2);
+
+};
+Player.prototype.videoReverse = function(){
+    this.videoInterface.reverseVideo(2);
+
+};
+
+
+Player.prototype.initVolume = function(value){
+    this.volume = (typeof this.volume === 'undefined') ? value : this.volume;
+    this.videoInterface.setVolume(this.volume, this.volume*100);
+    if(this.controls) this.controls.volume.setPosition(this.volume);
+};
+
+Player.prototype.setVolume = function(event, slider){
+    this.volume = slider.percentage;
+    this.videoInterface.setVolume(slider.percentage, slider.value);
+};
+
+Player.prototype.setPlayhead = function(event, slider){
+    this.wasPlaying = (this.isPlaying || this.wasPlaying) ? true:false;
+    this.videoInterface.pauseVideo();
+    this.videoInterface.setTimePosition(slider.value);
+    if(this.controls) this.controls.setPlayTimes(slider.value);
+};
+
+
+// ==================================================================================
+// Player Sizing / Resolution / Fullscreen
+// =========================================
+Player.prototype.toggleSize = function(){
+    if(this.isLarge) this.sizeDown();
+    else this.sizeUp();
+};
+
+Player.prototype.sizeUp = function(noAnimate){
+
+    var w = window,
+        d = document,
+        e = d.documentElement,
+        g = d.getElementsByTagName('body')[0],
+        x = w.innerWidth || e.clientWidth || g.clientWidth,
+        y = w.innerHeight || e.clientHeight || g.clientHeight;
+
+    var min_width               = this.resolutionWidth || 848;
+    var min_height              = this.resolutionHeight || 448;
+    var max_width               = Math.min(min_width, x-40);
+    var max_height              = Math.min(min_height, y-60);
+    var newDimensions           = this.getRatioSize(this._dimensions.width,
+                                            this._dimensions.height, max_width, max_height);
+
+    var wrapper_obj = $(this.wrapper);
+
+    this.wrapper.style.width    = newDimensions.width + 'px';
+    this.wrapper.style.height   = newDimensions.height + 'px';
+};
+
+Player.prototype.sizeDown = function(){
+    this.wrapper.style.width    = this._dimensions.width + 'px';
+    this.wrapper.style.height   = this._dimensions.height + 'px';
+};
+
+Player.prototype.getRatioSize = function(srcWidth, srcHeight, maxWidth, maxHeight) {
+    var ratio = [maxWidth / srcWidth, maxHeight / srcHeight ];
+    ratio = Math.min(ratio[0], ratio[1]);
+    return { width:Math.ceil(srcWidth*ratio), height:Math.ceil(srcHeight*ratio) };
+};
+
+Player.prototype.toggleFullscreen = function(){
+
+    if(this.isFullscreen)  this.exitFullscreen();
+    else this.enterFullscreen();
+};
+
+Player.prototype.showAirplayMenu = function(){
+    if (this.video && this.video.webkitShowPlaybackTargetPicker) {
+        this.video.webkitShowPlaybackTargetPicker();
+    }
+};
+
+Player.prototype.sendAirplayChange = function(evt){
+    switch (evt.availability) {
+    case "available":
+        this.controls.disableAirplay(false);
+        // airPlayButton.hidden = false;
+        // airPlayButton.disabled = false;
+        break;
+    case "not-available":
+        this.controls.disableAirplay(true);
+        // airPlayButton.hidden = true;
+        // airPlayButton.disabled = true;
+        break;
+    }
+
+};
+
+Player.prototype.updatePip = function()
+{
+    var newMode = this.videoInterface.getPresentationMode() === "picture-in-picture" ? "inline" : "picture-in-picture";
+    this.videoInterface.setPresentationMode(newMode);
+    this.controls.setPresentationMode(newMode);
+
+
+    // if (this.supportsPIP){
+    //     if (this.video.webkitPresentationMode === "picture-in-picture") {
+    //         this.video.webkitSetPresentationMode("inline");
+    //         this.controls.setPresentationMode("inline");
+    //     }
+    //     else {
+    //         this.video.webkitSetPresentationMode("picture-in-picture");
+    //         this.controls.setPresentationMode("picture-in-picture");
+    //     }
+    // }
+};
+
+
+
+Player.prototype.enterFullscreen = function(){
+
+    $(this.wrapper).removeClass('animated');
+    var fsElement = this.wrapper;
+    // var fsElement = this.video;
+    // fsElement = (this.quicktimeLoaded) ? this.wrapper : this.video;
+
+    if(fsElement.requestFullscreen) {
+    fsElement.requestFullscreen();
+    } else if(fsElement.mozRequestFullScreen) {
+    fsElement.mozRequestFullScreen();
+    } else if(fsElement.webkitRequestFullscreen) {
+    fsElement.webkitRequestFullscreen();
+    } else if(fsElement.msRequestFullscreen) {
+    fsElement.msRequestFullscreen();
+    }
+
+};
+
+Player.prototype.exitFullscreen = function(){
+    if(document.exitFullscreen) {
+    document.exitFullscreen();
+    } else if(document.mozCancelFullScreen) {
+    document.mozCancelFullScreen();
+    } else if(document.webkitExitFullscreen) {
+    document.webkitExitFullscreen();
+    }
+};
+
+Player.prototype.updateFullscreen = function(){
+
+    if(this.isFullscreen){
+        this.sizeUp();
+        this.isFullscreen = false;
+    }
+    else{
+        // this.sizeDown();
+
+        this.wrapper.style.width    = '100%';
+        this.wrapper.style.height   = '100%';
+
+        this.isFullscreen = true;
+    }
+
+
+    if(this.controls) this.updateControls();
+
+};
+
+Player.prototype.setResolution = function(event) {
+    this.videoInterface.pauseVideo();
+    this.playPosition = this.videoInterface.currentTime;
+    this.drawLoader();
+    this.setPlayerResolution(event.options.res);
+};
+
+Player.prototype.setPlayerResolution = function(res) {
+    this.resolution         = res;
+    Cookies.set('trailers_res', res, { expires: 7, path: '/' });
+    this.videoInterface.setMedia(this.getVideoSrc()+'#t='+this.playPosition);
+    this.resolutionWidth    = this.videoModel[res].width;
+    this.resolutionHeight   = this.videoModel[res].height;
+    this.sizeUp();
+};
+
+
+
+// ==================================================================================
+// Player Controls
+// =========================================
+
+Player.prototype.hideControls = function(){
+    if(this.controls) {
+        this.controls.hideControls();
+        // $(this.close).fadeOut('fast');
+    }
+};
+Player.prototype.showControls = function(){
+    if(this.controls) {
+        this.controls.showControls();
+        // if(! this.isFullscreen) $(this.close).fadeIn('fast');
+    }
+};
+
+Player.prototype.updateControls = function(){
+
+    if(this.controls) this.controls.adjustControls(this.isFullscreen);
+    // if(this.isFullscreen){
+    //     $(this.close).fadeOut('fast');
+    // }else{
+    //     $(this.close).fadeIn('fast');
+    // }
+};
+
+
+// ==================================================================================
+// Player Cleanup
+// =========================================
+Player.prototype.cleanUp = function(event){
+
+    this.unsetEvents();
+    if(this.videoInterface) this.videoInterface.destroy();
+
+    this.posterPlay.removeEventListener('click', this.trigger);
+
+};
+
+// ==================================================================================
+// Support Detection
+// =========================================
+Player.prototype.supportsVideo = function(){
+  return !!document.createElement('video').canPlayType;
+};
+
+
+
+// function setupPictureInPictureButton()
+// {
+//     if (typeof videoElement.webkitSupportsPresentationMode === "function" && videoElement.webkitSupportsPresentationMode("picture-in-picture")){
+//         pipButton.classList.remove("hidden");
+//     }
+// }
+
+
+Player.prototype.setLoader = function(loader_id){
+    this.loader                 = {obj:document.querySelector(loader_id)};      // Canvas element used to cloak video loading.
+    this.loader.context         = this.loader.obj.getContext('2d');
+    this.loader.obj.width       = this._dimensions.width;
+    this.loader.obj.height      = this._dimensions.height;
+};
+
+Player.prototype.drawLoader = function(){
+	
+	//Added in a dynamic scaling, since not all videos may match the dimensions passsed in.
+	var w = this._dimensions.height/this.video.videoHeight*this.video.videoWidth;
+    this.loader.obj.width       = w;
+
+    this.loader.context.drawImage(this.video,0,0,w, this._dimensions.height);
+    $(this.loader.obj).show();
+};
+
+Player.prototype.hideLoader = function(){
+  $(this.loader.obj).fadeOut(1500);
+};
+
+// Set Poster
+// =========================================
+
+Player.prototype.setPoster = function(poster_id){
+
+    var player = this;
+
+    this.poster         = document.querySelector(poster_id);       // The Poster To Show On Fail/End/Etc.
+    this.posterTitle    = this.poster.querySelector('.poster-title');
+    this.posterBlock    = this.poster.querySelector('.poster-block');
+    this.posterBack     = this.poster.querySelector('.poster-back');
+    this.posterPlay     = this.poster.querySelector('.poster-play');
+
+    this.posterTitle.addEventListener( 'click', this.posterClick.bind(this), false);
+};
+
+Player.prototype.posterClick = function(){
+  this.trigger('poster:play:clicked');
+    $(this.video).show();
+};
+
+// Show Poster
+// =========================================
+Player.prototype.showPoster = function(movieEnd){
+    // this.videoInterface.videoObject.style['display'] = 'none';
+
+    $(this.poster).fadeIn('fast');
+    if(movieEnd) {
+        this.showPosterBlock();
+        $(this.video).hide();
+        $(this.loader.obj).hide();
+
+    }
+};
+
+// Hide Poster
+// =========================================
+Player.prototype.hidePoster = function(){
+    // this.videoInterface.videoObject.style['display'] = '';
+    $(this.poster).fadeOut('slow');
+};
+
+// Show Poster Block
+// =========================================
+Player.prototype.showPosterBlock = function(){
+    this.posterBlock.style.display = 'block';
+    // var posterstyle = window.getComputedStyle($(this.poster).get(0));
+
+    // var style = window.getComputedStyle($(this.posterBlock).get(0));  // Need the DOM object
+    // var matrix = style.getPropertyValue("-webkit-transform") ||
+    //      style.getPropertyValue("-moz-transform") ||
+    //      style.getPropertyValue("-ms-transform") ||
+    //      style.getPropertyValue("-o-transform") ||
+    //      style.getPropertyValue("transform");
+
+    // var values = matrix.split('(')[1];
+    //     values = values.split(')')[0];
+    //     values = values.split(',');
+
+
+    // var transformString = ("translateX(" + values[4] + "px )");
+
+    // // now attach that variable to each prefixed style
+    // $(this.posterBack).css({
+    //     '-moz-transform': transformString,
+    //     '-webkit-transform': transformString,
+    //     '-ms-transform': transformString,
+    //     'transform': transformString,
+    //     'height': posterstyle.height,
+    //     'width': posterstyle.width
+    // });
+
+};
+Controls.prototype = new Tower();
+
+// ==================================================================================
+// Controls - Homgenized Controls
+// =========================================
+
+function Controls(instance_options){
+
+    // Setup default options
+    this._settings = {
+        volume : {
+            "wrapper"   : ".volume",
+            "playhead"  : ".playhead",
+            "track"     : ".track",
+            "progress"   : ".progress",
+            "loaded"    : ".loaded"
+        },
+        scrubber: {
+            "wrapper"   : ".timeline",
+            "playhead"  : ".playhead",
+            "track"     : ".track",
+            "progress"  : ".progress",
+            "loaded"    : ".loaded",
+            "buffer"    : ".buffer"
+        },
+        elapsed         : ".elapsed",
+        remaining       : ".remaining",
+        mediaOptions    : {
+            "airplay"       : "video-airplay",
+            "pip"           : "video-pip",
+            "resolution"    : "video-resolution",
+            "sizeup"        : "video-sizeup",
+            "fullscreen"    : "video-fullscreen"
+        }
+    };
+
+    // Extend Default Options
+    if(instance_options !== undefined) {
+        for (var option in instance_options) {
+            if (!instance_options.hasOwnProperty(option)) continue;     // Make sure it is not a part of the prototype
+            this._settings[option] = instance_options[option];
+        }
+    }
+
+    this.initialize();
+
+}
+
+Controls.prototype.initialize = function(){
+
+    this._listeners     = this._listeners || {};
+    this.wrapper        = document.getElementById("media-controls");
+    this.play           = document.getElementById("media-play");
+    this.forward        = document.getElementById("media-forward");
+    this.reverse        = document.getElementById("media-reverse");
+
+    this.scrubber       = new Component.slider(this._settings.scrubber);
+    this.volume         = new Component.slider(this._settings.volume);
+
+    this.elapsed        = $(this._settings.elapsed, this.wrapper);
+    this.remaining      = $(this._settings.remaining, this.wrapper);
+
+    this.mediaOptions   = {};
+    this.presentationMode = 'inline';
+
+
+    for (var key in this._settings.mediaOptions) {
+        this.mediaOptions[key] = document.getElementById(this._settings.mediaOptions[key]);
+    }
+
+    this.sendAirplayBind = this.sendAirplay.bind(this);
+    this.sendPipBind = this.sendPip.bind(this);
+    this.sendFullscreenBind = this.sendFullscreen.bind(this);
+    this.sendSizeupBind = this.sendSizeup.bind(this);
+    this.toggleMenuResolutionBind = this.toggleMenuResolution.bind(this);
+    this.sendResolutionBind = this.sendResolution.bind(this);
+
+
+    this.volume.setTrack(100);
+    this.setEvents();
+    this.setMediaOptions();
+    this.setActiveResolution();
+};
+
+// Event Setup
+// =========================================
+Controls.prototype.setEvents = function(){
+    this.play.addEventListener( 'click', this.sendPlay.bind(this), false);
+    this.forward.addEventListener( 'click', this.sendForward.bind(this), false);
+    this.reverse.addEventListener( 'click', this.sendReverse.bind(this), false);
+};
+
+Controls.prototype.setMediaOptions = function(){
+
+    if(this.mediaOptions.airplay)    {this.mediaOptions.airplay.addEventListener( 'click' , this.sendAirplayBind, true);}
+    if(this.mediaOptions.pip)    {this.mediaOptions.pip.addEventListener( 'click' , this.sendPipBind, true);}
+    if(this.mediaOptions.fullscreen) {this.mediaOptions.fullscreen.addEventListener( 'click' , this.sendFullscreenBind, true);}
+    if(this.mediaOptions.sizeup)     {this.mediaOptions.sizeup.addEventListener( 'click' , this.sendSizeupBind, true);}
+    if(this.mediaOptions.resolution) {
+        this.mediaOptions.resolution.addEventListener( 'click' , this.toggleMenuResolutionBind, true);
+        this.resolutionOptions = document.querySelectorAll('#menu-resolution button');
+        for (var i = 0; i < this.resolutionOptions.length; i++) {
+            this.resolutionOptions[i].addEventListener( 'click' , this.sendResolutionBind, true);
+        }
+    }
+};
+
+Controls.prototype.unsetMediaOptions = function(){
+    if(this.mediaOptions.airplay)    {this.mediaOptions.airplay.removeEventListener( 'click' );}
+    if(this.mediaOptions.pip)    {this.mediaOptions.pip.removeEventListener( 'click' );}
+    if(this.mediaOptions.fullscreen) {this.mediaOptions.fullscreen.removeEventListener( 'click' , this.sendFullscreenBind);}
+    if(this.mediaOptions.sizeup)     {this.mediaOptions.sizeup.removeEventListener( 'click' , this.sendSizeupBind);}
+    if(this.mediaOptions.resolution) {
+        this.mediaOptions.resolution.removeEventListener( 'click' , this.toggleMenuResolutionBind);
+        for (var i = 0; i < this.resolutionOptions.length; i++) {
+            this.resolutionOptions[i].removeEventListener( 'click' , this.sendResolutionBind);
+        }
+    }
+};
+
+
+// Emnitters
+// =========================================
+Controls.prototype.sendPlay = function(){
+    this.trigger('control:click:play');
+};
+Controls.prototype.sendForward= function(){
+    this.trigger('control:click:forward');
+};
+Controls.prototype.sendReverse = function(){
+    this.trigger('control:click:reverse');
+};
+Controls.prototype.sendAirplay = function(){
+    this.trigger('control:airplay');
+};
+Controls.prototype.sendPip = function(){
+    this.trigger('control:pip');
+};
+Controls.prototype.sendFullscreen = function(){
+    this.trigger('control:fullscreen');
+};
+Controls.prototype.sendSizeup = function(){
+    this.trigger('control:sizeup');
+};
+Controls.prototype.sendResolution = function(e){
+    this.trigger('control:resolution', {res:e.target.getAttribute('data-res')});
+    this.setActiveResolution(e.target);
+};
+
+
+
+// Public Methods
+// =========================================
+
+Controls.prototype.hideControls = function(){
+    this.volume.playhead.trigger('mouseup');
+    this.scrubber.playhead.trigger('mouseup');
+    $(this.wrapper).fadeOut('fast', function(){
+        $('#menu-resolution').removeClass('active');
+    });
+};
+
+Controls.prototype.showControls = function(){
+    $(this.wrapper).fadeIn();
+};
+
+Controls.prototype.disableAirplay = function(isDisabled) {
+    this.mediaOptions.airplay.disabled = isDisabled;
+    if (isDisabled) {
+        $(this.mediaOptions.airplay).hide();
+    }
+    else {
+        $(this.mediaOptions.airplay).show();
+    }
+};
+
+Controls.prototype.showPip = function() {
+    $(this.mediaOptions.pip).show();
+};
+
+Controls.prototype.setPresentationMode = function(type) {
+    var pip = $(this.mediaOptions.pip);
+    if (this.presentationMode === type){
+        return;
+    }
+    this.presentationMode = type;
+    if (type === 'inline') {
+        pip.removeClass('active');
+    }
+    else if (type === 'picture-in-picture'){
+        pip.addClass('active');
+    }
+};
+
+Controls.prototype.disableFullScreen = function() {
+    this.mediaOptions.fullscreen.disabled = true;
+    $(this.mediaOptions.fullscreen).hide();
+};
+
+Controls.prototype.disableResolution = function() {
+    this.mediaOptions.resolution.disabled = true;
+    $(this.mediaOptions.resolution).hide();
+};
+
+
+Controls.prototype.adjustControls = function(fullscreen){
+    if(fullscreen){
+        $(this.mediaOptions.fullscreen).removeClass('icon-enter-fs').addClass('icon-exit-fs');
+        $(this.mediaOptions.airplay).hide();
+        $(this.mediaOptions.sizeup).hide();
+        $(this.mediaOptions.resolution).hide();
+    }
+    else
+    {
+        $(this.mediaOptions.fullscreen).removeClass('icon-exit-fs').addClass('icon-enter-fs');
+        $(this.mediaOptions.airplay).show();
+        $(this.mediaOptions.sizeup).show();
+        $(this.mediaOptions.resolution).show();
+    }
+};
+
+// Play Methods
+Controls.prototype.setPlay = function(){
+     this.play.className = "icon icon-play";
+};
+
+Controls.prototype.setPause = function(){
+    this.play.className = "icon icon-pause";
+};
+
+// Track Methods
+Controls.prototype.setPlayTimes = function(value){
+    this.setElapsed(value);
+    this.setRemaining(value);
+};
+
+Controls.prototype.setElapsed = function(value){
+    var formatTime = this.getFormattedTime(value);
+    this.elapsed.text(formatTime);
+};
+
+Controls.prototype.setRemaining = function(value){
+    var formatTime = this.getFormattedTime(this.scrubber.units-value);
+    this.remaining.text('-'+formatTime);
+};
+
+// Resolution Methods
+Controls.prototype.setActiveResolution = function(target){
+    if(target) $(target).parent().addClass('active').siblings().removeClass('active');
+    this.hideMenuResolution();
+};
+
+Controls.prototype.toggleMenuResolution = function(){
+    $('#menu-resolution').toggleClass('active');
+};
+
+Controls.prototype.hideMenuResolution = function(){
+    $('#menu-resolution').removeClass('active');
+};
+
+
+// Private Methods
+// =========================================
+
+Controls.prototype.getTotalTime = function(){
+    var seconds = this.scrubber.units;
+    return this.getFormattedTime(seconds);
+};
+
+Controls.prototype.getFormattedTime = function(seconds){
+
+    // multiply by 1000 because Date() requires miliseconds
+    var date = new Date(seconds * 1000);
+    var mm = date.getUTCMinutes();
+    var ss = date.getSeconds();
+
+    // These lines ensure you have two-digits
+    if (mm < 10) {mm = "0"+mm;}
+    if (ss < 10) {ss = "0"+ss;}
+
+    // This formats your string to HH:MM:SS
+    return mm+":"+ss;
+
+};
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+NativeVideo.prototype = new Tower();
+
+// ==================================================================================
+// NativeVideo - Native Video Player
+// =========================================
+function NativeVideo(options){
+    this.video        = options.video;
+    this.player       = options.player;
+    this.videoSource  = options.videoSource;
+    this.startTime    = 0;
+    this.initialize();
+}
+
+NativeVideo.prototype.initialize = function(){
+    var quicktimeWrapper = document.getElementById('quicktimeWrapper');
+    if (quicktimeWrapper) {
+        quicktimeWrapper.parentNode.removeChild(quicktimeWrapper);
+    }
+
+
+    this.onMetaBind = this.onMeta.bind(this);
+    this.onMetaBind = this.onMeta.bind(this);
+    this.onReadyBind = this.onReady.bind(this);
+    this.onEndBind = this.onEnd.bind(this);
+    this.onPauseBind = this.onPause.bind(this);
+    this.onCanPlayBind = this.onCanPlay.bind(this);
+    this.onPlayBind = this.onPlay.bind(this);
+    this.onTimeupdateBind = this.onTimeupdate.bind(this);
+
+
+    this.supportsPIP = (typeof this.video.webkitSupportsPresentationMode === "function" && this.video.webkitSupportsPresentationMode("picture-in-picture"));
+
+    this.videoObject = this.video;
+    this.setEvents();
+};
+
+NativeVideo.prototype.placeVideo = function(){
+    //
+};
+
+NativeVideo.prototype.replaceVideo = function(source){
+
+    this.videoSource.setAttribute("src", source);
+
+    if(this.startTime){
+        this.videoObject.currentTime = this.startTime;
+    }
+    this.unsetEvents();
+    this.setEvents();
+    this.videoObject.load();
+};
+
+// Set Video Events
+// =========================================
+NativeVideo.prototype.setEvents = function(){
+
+    this.videoObject.addEventListener('loadeddata',             this.onMetaBind, false);
+    this.videoObject.addEventListener('canplay',                this.onReadyBind, false);
+    this.videoObject.addEventListener('ended',                  this.onEndBind, false);
+    this.videoObject.addEventListener('pause',                  this.onPauseBind, false);
+    this.videoObject.addEventListener('canplaythrough',         this.onCanPlayBind, false);
+    this.videoObject.addEventListener('play',                   this.onPlayBind, false);
+    this.videoObject.addEventListener('timeupdate',             this.onTimeupdateBind, false);
+};
+
+NativeVideo.prototype.unsetEvents = function(){
+
+    this.videoObject.removeEventListener('loadeddata',          this.onMetaBind, false);
+    this.videoObject.removeEventListener('canplay',             this.onReadyBind, false);
+    this.videoObject.removeEventListener('ended',               this.onEndBind, false);
+    this.videoObject.removeEventListener('pause',               this.onPauseBind, false);
+    this.videoObject.removeEventListener('canplaythrough',      this.onCanPlayBind, false);
+    this.videoObject.removeEventListener('play',                this.onPlayBind, false);
+    this.videoObject.removeEventListener('timeupdate',          this.onTimeupdateBind, false);
+};
+
+
+
+NativeVideo.prototype.onMeta   = function(){
+    this.duration   = this.videoObject.duration;
+    this.player.trigger('video:meta');
+};
+
+NativeVideo.prototype.onReady   = function(){
+  this.duration   = this.videoObject.duration;
+  this.player.trigger('video:ready');
+};
+
+NativeVideo.prototype.onCanPlay = function(){
+  this.duration   = this.videoObject.duration;
+  this.player.trigger('video:canPlay');
+};
+
+NativeVideo.prototype.onPlay = function(){
+  this.duration   = this.videoObject.duration;
+  this.player.trigger('video:play');
+};
+
+NativeVideo.prototype.onTimeupdate = function(){
+  this.currentTime = this.videoObject.currentTime;
+  this.player.trigger('video:timeupdate');
+};
+
+NativeVideo.prototype.onPause = function(){
+  this.player.trigger('video:pause');
+};
+
+NativeVideo.prototype.onEnd = function(){
+  this.player.trigger('video:end');
+};
+
+NativeVideo.prototype.replayVideo = function(){
+    this.videoObject.play();
+};
+
+NativeVideo.prototype.playVideo = function(){
+    this.videoObject.play();
+};
+
+NativeVideo.prototype.pauseVideo = function(){
+    this.videoObject.pause();
+};
+
+NativeVideo.prototype.forwardVideo = function(timeInterval){
+    var now = this.videoObject.currentTime;
+    this.videoObject.currentTime = now+timeInterval;
+};
+
+NativeVideo.prototype.reverseVideo = function(timeInterval){
+    var now = this.videoObject.currentTime;
+    this.videoObject.currentTime = now-timeInterval < 0 ? 0 : now-timeInterval;
+};
+
+NativeVideo.prototype.setVolume = function(percentage, value){
+    this.videoObject.volume = percentage;
+};
+
+NativeVideo.prototype.setTimePosition = function(value){
+  this.videoObject.currentTime = value;
+};
+
+NativeVideo.prototype.setMedia = function(source){
+    this.startTime = this.videoObject.currentTime;
+    this.replaceVideo(source);
+};
+
+NativeVideo.prototype.getBufferRatio = function() {
+    if (this.video.buffered.length > 0 && this.video.buffered.end && this.video.duration > 0) {
+        return this.video.buffered.end(0) / this.video.duration;
+    }
+    else if (this.video.bufferedBytes && this.video.bytesTotal > 0) {
+        return this.video.bufferedBytes / this.video.bytesTotal;
+    }
+    return false;
+};
+
+NativeVideo.prototype.setPresentationMode = function(mode) {
+    if (this.supportsPIP) {
+        this.presentationMode = mode;
+        if (this.videoObject.webkitSetPresentationMode){
+            this.videoObject.webkitSetPresentationMode(mode);
+        }
+    }
+};
+
+NativeVideo.prototype.getPresentationMode = function(mode) {
+    if (this.supportsPIP) {
+        return this.videoObject.webkitPresentationMode || this.presentationMode;
+    }
+};
+
+NativeVideo.prototype.destroy = function(){
+  this.unsetEvents();
+};
+
+
+
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+QTVideo.prototype = new Tower();
+
+// ==================================================================================
+// QTVideo - Quicktime Video Player
+// =========================================
+function QTVideo(options){
+  this.video        = options.video;
+  this.player       = options.player;
+  this.videoSource  = options.videoSource;
+  this.startTime    = 0;
+  this.initialize();
+}
+
+QTVideo.prototype.initialize = function(){
+    // this.notIE = !((navigator.appName === 'Microsoft Internet Explorer') || ((navigator.appName === 'Netscape') && (new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})").exec(navigator.userAgent) !== null)));
+    this.isIE = (window.corePlayer.getInternetExplorerVersion() > -1);
+    this.qtSource = this.videoSource.src;
+
+  this.onMetaBind = this.onMeta.bind(this);
+  this.onReadyBind = this.onReady.bind(this);
+  this.onEndBind = this.onEnd.bind(this);
+  this.onPauseBind = this.onPause.bind(this);
+  this.onCanPlayBind = this.onCanPlay.bind(this);
+  this.onPlayBind = this.onPlay.bind(this);
+
+
+    // this.setTemplate();
+    this.buildObject();
+};
+
+QTVideo.prototype.buildObject = function(){
+    var qtObject = QT_GenerateOBJECTText(this.qtSource,
+      '100%',
+      '100%',
+      '',
+      'obj#id', 'quicktimeMovie',
+      'emb#id', 'quicktimeMovieInner',
+      'emb#name', 'quicktimeMovie',
+      'EnableJavaScript', 'true',
+      'postdomevents', 'true',
+      'wmode', 'transparent',
+      'showlogo', 'false',
+      'scale', 'aspect',
+      'autoplay', 'true',
+      'controller', 'false',
+      // 'controller', 'true',
+      'bgcolor', '000000'
+    );
+
+    this.timeScale = 0;
+    this.timeScale = 600;
+
+    this.video.parentNode.removeChild(this.video);
+    var quicktimeWrapper = document.getElementById('quicktimeWrapper');
+        quicktimeWrapper.innerHTML = qtObject;
+
+    if(this.isIE) {
+      setTimeout(this.replaceVideo.bind(this), 500); // IE cannot register the events until things get going.
+    }
+    else {
+      this.setVideoObject();
+    }
+};
+
+
+QTVideo.prototype.replaceVideo = function(source){
+    var currentSource = source || this.qtSource;
+    this.videoObject = (this.isIE) ? document.getElementById('quicktimeMovie') : document.getElementById('quicktimeMovieInner');
+    this.videoObject.SetResetPropertiesOnReload(false);
+    this.videoObject.SetURL(currentSource);
+    this.setEvents();
+
+};
+
+QTVideo.prototype.setVideoObject = function(){
+    this.videoObject = (this.isIE) ? document.getElementById('quicktimeMovie') : document.getElementById('quicktimeMovieInner');
+    this.setEvents();
+};
+
+QTVideo.prototype.setEvents = function(){
+  var eventObject = this.videoObject;
+  // console.log('setting events on: ', eventObject);
+
+  this._addEventListener(eventObject, 'qt_loadedmetadata',      this.onMetaBind, false);
+  this._addEventListener(eventObject, 'qt_canplay',             this.onReadyBind, false);
+  this._addEventListener(eventObject, 'qt_ended',               this.onEndBind, false);
+  this._addEventListener(eventObject, 'qt_pause',               this.onPauseBind, false);
+  this._addEventListener(eventObject, 'qt_canplaythrough',      this.onCanPlayBind, false);
+  this._addEventListener(eventObject, 'qt_play',                this.onPlayBind, false);
+
+};
+QTVideo.prototype.unsetEvents = function(){
+  var eventObject = this.videoObject;
+  this._removeEventListener(eventObject, 'qt_loadedmetadata',  this.onMetaBind, false);
+  this._removeEventListener(eventObject, 'qt_canplay',         this.onReadyBind, false);
+  this._removeEventListener(eventObject, 'qt_ended',           this.onEndBind, false);
+  this._removeEventListener(eventObject, 'qt_pause',           this.onPauseBind, false);
+  this._removeEventListener(eventObject, 'qt_canplaythrough',  this.onCanPlayBind, false);
+  this._removeEventListener(eventObject, 'qt_play',            this.onPlayBind, false);
+};
+
+QTVideo.prototype.onMeta   = function(){
+  this.timeScale  = this.videoObject.GetTimeScale();
+  this.duration   = this.videoObject.GetDuration()/this.timeScale;
+  this.player.trigger('video:meta');
+};
+
+QTVideo.prototype.onReady   = function(){
+  this.timeScale  = this.videoObject.GetTimeScale();
+  this.duration   = this.videoObject.GetDuration()/this.timeScale;
+  if(this.startTime) this.videoObject.SetStartTime(this.startTime);
+  this.player.trigger('video:ready');
+};
+
+QTVideo.prototype.onCanPlay = function(){
+  this.timeScale  = this.videoObject.GetTimeScale();
+  this.duration   = this.videoObject.GetDuration()/this.timeScale;
+  this.player.trigger('video:canPlay');
+};
+
+QTVideo.prototype.onPlay = function(){
+  this._startPoll();
+  this.player.trigger('video:play');
+};
+
+QTVideo.prototype.onPause = function(){
+  this._stopPoll();
+  this.player.trigger('video:pause');
+};
+
+QTVideo.prototype.onEnd = function(){
+  this._stopPoll();
+  this.player.trigger('video:end');
+};
+
+QTVideo.prototype.replayVideo = function(){
+    this.videoObject.Rewind();
+    this.videoObject.Play();
+};
+
+QTVideo.prototype.playVideo = function(){
+    this.videoObject.Play();
+};
+
+QTVideo.prototype.pauseVideo = function(){
+    this.videoObject.Stop();
+};
+
+QTVideo.prototype.forwardVideo = function(timeInterval){
+    var now = this.videoObject.GetTime();
+    this.videoObject.SetTime(now+(timeInterval*this.timeScale));
+    this.currentTime = this.videoObject.GetTime()/this.timeScale;
+    this.player.trigger('video:timeupdate');
+};
+
+QTVideo.prototype.reverseVideo = function(timeInterval){
+    var now = this.videoObject.GetTime();
+    this.videoObject.SetTime(now-(timeInterval*this.timeScale));
+    this.currentTime = this.videoObject.GetTime()/this.timeScale;
+    this.player.trigger('video:timeupdate');
+};
+
+QTVideo.prototype.setVolume = function(percentage, value){
+    this.videoObject.SetVolume(value);
+};
+
+QTVideo.prototype.setTimePosition = function(value){
+  this.videoObject.SetTime(value*this.timeScale);
+};
+
+QTVideo.prototype.setMedia = function(source, sizes){
+    this._stopPoll();
+    this.startTime = this.videoObject.GetTime();
+    this.unsetEvents();
+    this.replaceVideo(source, sizes);
+    this._startPoll();
+    // console.log(source, sizes);
+};
+
+QTVideo.prototype.getBufferRatio = function() {
+    if (this.videoObject && this.videoObject.GetMaxTimeLoaded) {
+        var loaded   = this.videoObject.GetMaxTimeLoaded();
+        var duration = this.videoObject.GetDuration();
+        if (loaded && duration > 0) {
+            return loaded / duration;
+        }
+    }
+    return false;
+};
+
+QTVideo.prototype.destroy = function(){
+  this._stopPoll();
+  this.unsetEvents();
+};
+
+
+// Pseudo Private Methods
+// Do not access these from outside
+QTVideo.prototype._startPoll = function(){
+  this._stopPoll();
+  this.poll = setInterval(this._polling.bind(this), 1000);
+};
+
+QTVideo.prototype._stopPoll = function(){
+  if (this.poll) clearInterval(this.poll);
+};
+
+QTVideo.prototype._polling = function(){
+  console.log("gettime: "+this.videoObject.GetTime()+" timescale: "+this.timeScale);
+  this.currentTime = this.videoObject.GetTime()/this.timeScale;
+
+  this.player.trigger('video:timeupdate');
+};
+
+QTVideo.prototype._addEventListener = function(obj, evt, handler, captures){
+    if ( document.attachEvent ) obj.attachEvent('on' + evt, handler);
+    else obj.addEventListener(evt, handler, captures);
+};
+QTVideo.prototype._removeEventListener = function(obj, evt, handler, captures){
+    if ( document.attachEvent ) obj.detachEvent('on' + evt, handler);
+    else obj.removeEventListener(evt, handler, captures);
+};
+
+
+// ==================================================================================
+// Component - UI Components
+// =========================================
+
+function Component() {}
+// var Component = function(){};
+
+
+Component.slider = function( options ){
+    this.initialize( options );
+    return this;
+};
+
+Component.slider.prototype.initialize = function( options ) {
+    this.wrapper     = $(options.wrapper);
+    this.playhead    = $(options.playhead, this.wrapper);
+    this.progress    = $(options.progress, this.wrapper);
+    this.buffer      = $(options.buffer, this.wrapper);
+    this.track       = { obj: $(options.track, this.wrapper) };
+
+    this.playhead.on('mousedown', this.setDrag.bind(this));
+
+};
+
+Component.slider.prototype.setTrack = function(units){
+    this.units = units || 100;
+    this.track.width = this.track.obj.width();
+    this.track.ratio = this.units / this.track.width;
+
+};
+
+Component.slider.prototype.setDrag = function(first_argument) {
+
+    $( "body" ).addClass( "noSelect" );
+
+    this.trackOffset = this.track.obj.offset();
+
+    $( document ).bind( 'mousemove', this.doDrag.bind(this) );
+    $( document ).bind( 'mouseup', {"wrapper" : this.wrapper}, this.endDrag );
+    this.playhead.bind( 'mouseup', {"wrapper" : this.wrapper}, this.endDrag );
+};
+
+Component.slider.prototype.calculateValue = function(){
+    return this.position*this.units / this.track.obj.width();
+};
+
+Component.slider.prototype.calculatePercentage = function(){
+    return parseFloat( this.calculateValue() / 100 ).toFixed(2);
+};
+
+Component.slider.prototype.doDrag = function( event ) {
+    this.position = Math.min(Math.max(event.pageX - this.trackOffset.left, 0), this.track.obj.width());
+    if (this.position > this.bufferPosition) {
+        this.position = this.bufferPosition;
+    }
+    this.wrapper.trigger('slider::dragged', {
+        "percentage" : this.calculatePercentage(),
+        "value" : this.calculateValue()
+    });
+    this.adjustPosition();
+};
+
+Component.slider.prototype.setPosition = function(position) {
+    this.position = this.track.obj.width() * position;
+    this.adjustPosition();
+
+    return this.position;
+};
+
+Component.slider.prototype.adjustPosition = function(){
+
+    this.playhead.css('left', parseInt(this.position)+'px');
+    this.progress.css('width', parseInt(this.position)+'px');
+};
+
+Component.slider.prototype.setBufferPosition = function(position) {
+    this.bufferPosition = this.track.obj.width() * position;
+    this.buffer.css('width', this.bufferPosition +'px');
+};
+
+Component.slider.prototype.endDrag = function(event) {
+
+    $( "body" ).removeClass( "noSelect" );
+
+    $( document ).unbind( 'mousemove',  this.doDrag, false );
+    $( document ).unbind( 'mouseup',    this.endDrag, false );
+    $( event.target ).unbind( 'mouseup',  this.endDrag, false );
+
+    event.data.wrapper.trigger('slider::end_drag');
+};
+
+
+
+
+
+// ==================================================================================
+// Tower - Custom Events
+// =========================================
+
+function Tower(){}
+
+Tower.prototype.addListener = function(type, listener){
+    if (typeof this._listeners[type] == "undefined"){
+        this._listeners[type] = [];
+    }
+
+    this._listeners[type].push(listener);
+};
+
+Tower.prototype.removeListener = function(type, listener){
+    if (this._listeners[type] instanceof Array){
+        var listeners = this._listeners[type];
+        for (var i=0, len=listeners.length; i < len; i++){
+            if (listeners[i] === listener){
+                listeners.splice(i, 1);
+                break;
+            }
+        }
+    }
+};
+
+Tower.prototype.trigger = function(event, options){
+    if (typeof event == "string") event = { type: event };
+    if (!event.target) event.target = this;
+    if (!event.type) throw new Error("Event object missing 'type' property.");
+    if (typeof options !== "undefined") event.options = options;
+    if (this._listeners[event.type] instanceof Array){
+        var listeners = this._listeners[event.type];
+        for (var i=0, len=listeners.length; i < len; i++){
+            listeners[i].call(this, event);
+        }
+    }
+};
+
+Tower.prototype.isOldIE = function() {
+    var version = window.corePlayer.getInternetExplorerVersion();
+    if (version > -1 && version < 9){
+        return true;
+    }
+    return false;
+    // return (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > 0) ? true : false;
+};
+
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+
+
+
+});

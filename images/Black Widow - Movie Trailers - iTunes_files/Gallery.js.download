@@ -1,0 +1,32 @@
+/*global define */
+
+define([
+	'marionette',
+	'templates/templates'
+], function (Marionette, templates) {
+	'use strict';
+
+	var thumbnail = Marionette.ItemView.extend({
+		tagName: "li",
+		className: "photo-thumb",
+		template: templates.thumbnail,
+		events: {
+			"click": "clicked",
+		},
+		clicked: function(event){
+			event.preventDefault();
+			this.$el.addClass('active').siblings().removeClass('active');
+			this.trigger('thumb:clicked', this.model);
+		}
+	});
+
+	return Marionette.CompositeView.extend({
+	  itemView: thumbnail,
+	  itemViewContainer: "#photo-scroll",
+	  template: templates.gallery,
+	  onRender: function(){
+    	// console.log('Gallery Rendered');
+  	}
+	});
+
+});

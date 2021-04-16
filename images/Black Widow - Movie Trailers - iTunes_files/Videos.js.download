@@ -1,0 +1,348 @@
+/*global define */
+
+define([
+	'marionette',
+	'templates/templates',
+	'coreplayer',
+	'Cookies'
+], function (Marionette, templates, coreplayer, Cookies) {
+	'use strict';
+
+
+	// ========================================================
+	//
+	// SET UP THE TRAY
+	//
+	// ========================================================
+	var Clip = Marionette.ItemView.extend({
+		tagName: "li",
+		className: "trailer",
+		template: templates.clip,
+		events: {
+      		"click .link-play": "clicked"
+      	},
+		clicked: function(event){
+			event.preventDefault();
+			this.trigger('overlay:trailer:clicked', this.model);
+		}
+	});
+
+	var Tray = Marionette.CompositeView.extend({
+		itemView: Clip,
+		itemViewContainer: ".scroll-content",
+		template: templates.clips
+	});
+
+	// var hasQt = function() {
+	// 	var haveqt = false;
+
+	// 	if (navigator.plugins) {
+	// 	    for (var i=0; i < navigator.plugins.length; i++ ) {
+	// 	        if (navigator.plugins[i].name.indexOf
+	// 	        ("QuickTime") >= 0)
+	// 	        { haveqt = true; }
+	// 	    }
+	// 	}
+
+	// 	if ((navigator.appVersion.indexOf("Mac") > 0) && (navigator.appName.substring(0,9) == "Microsoft") && (parseInt(navigator.appVersion) < 5) ) { 
+	// 	    haveqt = true;
+	// 	}
+
+	// 	// if (navigator.appName == 'Netscape' && navigator.userAgent.indexOf('Trident') > -1) {
+	// 	// 	haveqt = true;
+	// 	// }
+
+	// 	return haveqt;
+	// };
+
+
+
+	// ========================================================
+	//
+	// SET UP THE STAGE
+	//
+	// ========================================================
+	var PlayerStage = Marionette.ItemView.extend({
+		// template: templates.videoStage,
+		getTemplate: function(){
+			if (this.getSizes().is_hls && window.corePlayer.videoSupport.hls){
+				return templates.acVideoStage;
+			}
+			else{
+				return templates.videoStage;
+			}
+		},
+		templateHelpers:{
+			videoWidth: function(){
+				return this.versions[this.localOption].sizes[this.sizeOption].width;
+			},
+			videoHeight: function(){
+				return this.versions[this.localOption].sizes[this.sizeOption].height;
+			},
+			videoSource: function(){
+				// var canPlay = app.videoResults;
+
+				if ((this.versions[this.localOption].sizes.is_hls && window.corePlayer.videoSupport.hls) || window.corePlayer.isSafari()) {
+					return this.versions[this.localOption].sizes[this.sizeOption].src;
+				}
+				else if (window.corePlayer.videoSupport.h264) {
+					return this.versions[this.localOption].sizes[this.sizeOption].srcAlt;
+				}
+			},
+			videoType: function() {
+				if (this.versions[this.localOption].sizes.is_hls && window.corePlayer.videoSupport.hls) {
+					return 'application/vnd.apple.mpegurl';
+				}
+				else if (window.corePlayer.isSafari()) {
+					return 'video/quicktime';
+				}
+				else {
+					return 'video/mp4';
+				}
+			},
+			supportsAirplay: function() {
+				return !!window.WebKitPlaybackTargetAvailabilityEvent;
+			},
+			videoResolutions: function(){
+				var sizes = this.versions[this.localOption].sizes;
+				if (sizes.is_hls !== undefined) {
+					delete sizes.is_hls;
+				}
+				return (_.size(sizes)-1) ? sizes : false;
+			},
+			activeResolution: function(){
+				return this.sizeOption;
+			}
+		},
+		setLocalization: function(localOption){
+			this.localOption = (localOption) ? localOption : 'enus';
+			this.templateHelpers.localOption 	= this.localOption;
+		},
+		setSize: function(sizeOption){
+			if(sizeOption){
+				this.sizeOption = sizeOption;
+			    Cookies.set('trailers_res', sizeOption, { expires: 7, path: '/' });
+			}
+			else{
+				var sizeCookie = Cookies.get('trailers_res');
+				this.sizeOption =  (sizeCookie) ? sizeCookie : 'sd';
+			}
+
+			this.templateHelpers.sizeOption	= this.sizeOption;
+		},
+		setVideo: function(){
+
+			if (!this.nativeHLS) {
+				if(this.videoPlayer){
+					this.videoPlayer.cleanUp();
+				}
+
+				this.videoPlayer = new corePlayer({
+					size: 		this.sizeOption,
+					local: 		this.localOption,
+					model: 		this.model.attributes
+				});
+			}
+
+
+		},
+		getRatioSize: function(srcWidth, srcHeight, maxWidth, maxHeight) {
+		    var ratio = [maxWidth / srcWidth, maxHeight / srcHeight ];
+		    ratio = Math.min(ratio[0], ratio[1]);
+		    return { width:Math.ceil(srcWidth*ratio), height:Math.ceil(srcHeight*ratio) };
+		},
+		resizeVideo: function() {
+		    var w = window,
+		        d = document,
+		        e = d.documentElement,
+		        g = d.getElementsByTagName('body')[0],
+		        x = w.innerWidth || e.clientWidth || g.clientWidth,
+		        y = w.innerHeight || e.clientHeight || g.clientHeight;
+
+		    var min_width               = this.getSizes()[this.sizeOption].width || 848;
+		    var min_height              = this.getSizes()[this.sizeOption].height || 448;
+		    var max_width               = Math.min(min_width, x-40);
+		    var max_height              = Math.min(min_height, y-60);
+		    var newDimensions           = this.getRatioSize(min_width, min_height, max_width, max_height);
+
+		    this.$el.find('.video-player').css({
+		    	width: newDimensions.width + 'px',
+		    	height: newDimensions.height + 'px'
+		    });
+
+		    // this.$el.style.width    = newDimensions.width + 'px';
+		    // this.$el.style.height   = newDimensions.height + 'px';
+		},
+
+		closeit: function(){
+			this.trigger('overlay:close:clicked');
+		},
+		onRender: function(){
+			this.setLocalization();
+			this.setSize();
+			var stage = this;
+			if(this.domLoaded)	  this.setVideo();
+			this.close_button   = this.$el.find('.close-overlay');
+			this.close_button.on('click', 	function(e){e.preventDefault(); stage.trigger('overlay:close:clicked');});
+			this.resizeVideoBind = this.resizeVideo.bind(this);
+
+			if (this.nativeHLS){
+				this.setSize('hd1080');
+				this.resizeVideo();
+				$(window).on('resize', this.resizeVideoBind);
+			}
+
+		},
+		onShow: function(){
+			this.setVideo();
+			this.$el.hide().fadeIn();
+			this.domLoaded = true;
+		},
+		onClose: function(){
+
+			if(this.videoPlayer) {
+				this.videoPlayer.cleanUp();
+			}
+			this.close_button.off('click');
+			this.domLoaded = false;
+
+		},
+		initialize: function(){
+
+			this.setLocalization();
+			this.setSize();
+		},
+		getSizes: function() {
+			return this.model.get('versions')[this.localOption].sizes;
+		},
+		feedIsHLS: function(){
+			if (this.model){
+				return this.getSizes().is_hls;
+			}
+			return false;
+		}
+	});
+
+
+	return Marionette.Layout.extend({
+		regions: {
+            clipStage    : "#clip-stage",
+            clipTray     : "#clip-tray"
+		},
+		template: templates.videoLayout,
+		initialize: function(){
+			_.bindAll(this);
+			this.tray 			= new Tray({collection:this.collection});
+			this.stage 			= new PlayerStage();
+			this.tray.on('itemview:overlay:trailer:clicked', this.setClip.bind(this));
+			this.stage.on('overlay:close:clicked', this.closeOverlay.bind(this));
+		},
+		closeOverlay: function(){
+			this.trigger('close:clicked');
+		},
+		setClip: function(childview, model){
+			// make sure the controls will be re-rendered for the new clip
+			this.controlsVisible = false;
+
+			// Set Sage and Render
+			if(this.stage.model){
+				model.set('trailer_url', 			this.stage.model.get('trailer_url'));
+				model.set('twitter_message', 		this.stage.model.get('twitter_message'));
+				model.set('official_url', 			this.stage.model.get('official_url'));
+			}
+
+			this.stage.model 	= model;
+			this.stage.render();
+		},
+		onShow: function(){
+			_.bindAll();
+			this.stage.model = this.model;
+			this.stage.setLocalization();
+			this.stage.nativeHLS = this.model.get('versions')[this.stage.localOption].sizes.is_hls && window.corePlayer.videoSupport.hls;
+			this.clipTray.show(this.tray);
+			this.clipStage.show(this.stage);
+			if (!app.isAndroid) {
+				this.traynav = this.clipTray.$el.traynav().hide();
+				this.setHover();
+			}
+			else {
+				this.showControls();
+				this.controlsInterval = setInterval(this.showVideoControls.bind(this), 100);
+			}
+			// this.showControls();
+			// this.stage.videoPlayer.showControls();
+		},
+		setHover: function(){
+			var that = this;
+			var bindShowControls = that.showControls.bind(that);
+			var bindHideControls = that.hideControls.bind(that);
+			for(var index in this.regions) {
+				$(this.regions[index]).hover(
+					function(){
+						that.showControls();
+						$(this).mousemove(bindShowControls);
+					},
+					function(){
+						that.hoverTime = setTimeout(bindHideControls, 500);
+						$(this).unbind('mousemove', bindShowControls);
+					}
+				);
+			}
+		},
+		showControls: function(){
+			$("body").css('cursor', 'auto');
+			this.clearTimes();
+			if (!app.isAndroid){
+				this.idleTime = setTimeout(this.hideControls.bind(this), 2500);
+			}
+			// if (this.stage.videoPlayer && !this.stage.videoPlayer.isFullscreen){
+				this.stage.close_button.fadeIn();
+			// }
+			if(! this.controlsVisible){
+				this.clipTray.$el.fadeIn();
+
+				if (this.stage.videoPlayer && this.stage.videoPlayer.isActive) {
+					this.controlsVisible = true;
+					this.stage.videoPlayer.showControls();
+				}
+			}
+		},
+		hideControls: function(){
+			$("body").css('cursor', 'none');
+			this.clearTimes();
+			this.controlsVisible = false;
+			if(this.clipTray.$el)	this.clipTray.$el.fadeOut();
+			this.stage.videoPlayer && this.stage.videoPlayer.hideControls();
+			this.stage.close_button.fadeOut('fast');
+		},
+		showVideoControls: function() {
+			if (this.stage.videoPlayer && this.stage.videoPlayer.isActive) {
+				this.controlsVisible = true;
+				this.stage.videoPlayer.showControls();
+				if (this.controlsInterval) {
+					clearInterval(this.controlsInterval);
+					this.controlsInterval = null;
+				}
+			}
+
+		},
+		clearTimes: function(){
+			clearTimeout(this.hoverTime);
+			clearTimeout(this.idleTime);
+		},
+		keyPressed: function(){
+		// this.stage.videoPlayer
+		},
+		onClose: function(){
+			$("body").css('cursor', 'auto');
+			this.controlsVisible = false;
+			this.clearTimes();
+
+			for(var index in this.regions) {
+				$(this.regions[index]).unbind('mouseenter mouseleave');
+				$(this.regions[index]).unbind('mousemove');
+			}
+		}
+	});
+
+});

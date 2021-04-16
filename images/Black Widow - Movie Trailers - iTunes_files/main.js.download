@@ -1,0 +1,77 @@
+requirejs.config({
+    baseUrl:'/trailers/global/v4/scripts/app/',
+    paths: {
+        'underscore'            : '../libs/lodash/lodash.underscore',
+        'backbone'              : '../libs/backbone/backbone',
+        'marionette'            : '../libs/backbone/backbone.marionette',
+        'backbone.wreqr'        : '../libs/backbone/backbone.wreqr',
+        'backbone.babysitter'   : '../libs/backbone/backbone.babysitter',
+        'jquery'                : '../libs/jquery/jquery-3.5.1',
+        // 'jquery-cookie'         : '../libs/jquery-cookie',
+        'Cookies'               : '../libs/js.cookie/js.cookie-3.0.0',
+        'ac_quicktime'          : '../libs/ac_quicktime',
+        'coreplayer'            : '../libs/coreplayer/coreplayer',
+        'tpl'                   : '../libs/requirejs/tpl',
+        'tinyscroll'            : '../libs/tinyscrollbar',
+        'traynav'               : '../libs/traynav',
+        // 'loadmap'               : '../libs/loadgooglemaps',
+        // 'infobox'               : '../libs/googlemap_infobox',
+        'moment'                : '../libs/moment.min',
+        'dropit'                : '../libs/dropit'
+        },
+
+    shim: {
+        underscore: {
+            exports: '_'
+        },
+        backbone: {
+            exports: 'Backbone',
+            deps: ['jquery', 'underscore']
+        },
+        marionette: {
+            exports: 'Backbone.Marionette',
+            deps: ['backbone']
+        },
+        tinyscroll: {
+            deps: ["jquery"]
+        },
+        traynav: {
+          deps: ["jquery"]
+        },
+        coreplayer: {
+          deps: ['jquery', 'ac_quicktime']
+        },
+        infobox: {
+            exports : 'InfoBox'
+        },
+        loadmap: {
+            exports: 'loadGoogleMap',
+            deps: ['jquery']
+        },
+        dropit: {
+            deps: ['jquery']
+        }
+    },
+    tpl: {
+        extension: '.tpl' // default = '.html'
+    },
+    deps: ['jquery', 'underscore']
+});
+
+requirejs([
+    'app',
+    'backbone',
+    'routers/index',
+    'controllers/index',
+    'jquery',
+    'Cookies'
+    // 'jquery-cookie'
+], function (app, Backbone, Router, Controller) {
+    'use strict';
+
+    app.start();
+
+    app.appRouter = new Router({ controller: Controller });
+
+});
+

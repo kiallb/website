@@ -1,0 +1,95 @@
+/*global define */
+
+define(['underscore',
+        'tpl!templates/header/base.tmpl',
+        'tpl!templates/header/clipnav.tmpl',
+        'tpl!templates/header/clip.tmpl',
+        'tpl!templates/header/native_clip.tmpl',
+        'tpl!templates/header/hero.tmpl',
+
+        'tpl!templates/footer/base.tmpl',
+
+        'tpl!templates/main/base.tmpl',
+        'tpl!templates/main/tab.tmpl',
+        'tpl!templates/main/details.tmpl',
+        'tpl!templates/main/related.tmpl',
+        'tpl!templates/main/reviews.tmpl',
+        'tpl!templates/main/gallery.tmpl',
+        'tpl!templates/main/thumbnail.tmpl',
+        'tpl!templates/overlay/galleryLayout.tmpl',
+        'tpl!templates/overlay/galleryStage.tmpl',
+
+        'tpl!templates/overlay/videoLayout.tmpl',
+        'tpl!templates/overlay/videoStage.tmpl',
+        'tpl!templates/overlay/acVideoStage.tmpl',
+
+        'tpl!templates/overlay/showtimes/showtimeLayout.tmpl',
+        'tpl!templates/overlay/showtimes/showtimeHead.tmpl',
+        'tpl!templates/overlay/showtimes/showtimeDots.tmpl',
+        'tpl!templates/overlay/showtimes/showtimeTheater.tmpl',
+        'tpl!templates/overlay/showtimes/showtimePager.tmpl',
+        'tpl!templates/overlay/showtimes/showtimeCity.tmpl',
+        'tpl!templates/overlay/showtimes/showtimeInfoBox.tmpl'
+
+        ], function (_, header,
+clips,
+clip,
+nativeclip,
+heros,
+footer,
+main,
+tab,
+details,
+related,
+reviews,
+gallery,
+thumbnail,
+galleryLayout,
+galleryStage,
+videoLayout,
+videoStage,
+acVideoStage,
+showtimeLayout,
+showtimeHead,
+showtimeDots,
+showtimeTheater,
+showtimePager,
+showtimeCity,
+showtimeInfoBox) {
+	'use strict';
+
+	return {
+        header                  : header,
+        clips 			: clips,
+        clip                    : clip,
+        nativeclip              : nativeclip,
+        heros     		: heros,
+
+        footer                  : footer,
+
+        main     		: main,
+        tab 			: tab,
+        details    		: details,
+        related    		: related,
+        reviews    		: reviews,
+        gallery    		: gallery,
+        thumbnail               : thumbnail,
+        galleryLayout           : galleryLayout,
+        galleryStage            : galleryStage,
+
+        videoLayout             : videoLayout,
+        videoStage              : videoStage,
+        acVideoStage            : acVideoStage,
+
+        showtimeLayout          : showtimeLayout,
+        showtimeHead            : showtimeHead,
+        showtimeDots            : showtimeDots,
+        showtimeTheater         : showtimeTheater,
+        showtimePager           : showtimePager,
+        showtimeCity            : showtimeCity,
+        showtimeInfoBox         : showtimeInfoBox,
+
+	};
+
+});
+

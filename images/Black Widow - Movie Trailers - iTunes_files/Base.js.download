@@ -1,0 +1,17 @@
+/*global define */
+
+define([
+	'marionette',
+	'templates/templates'
+], function (Marionette, templates) {
+	'use strict';
+
+	return Marionette.Layout.extend({
+		template: templates.header,
+		id: "arena",
+		regions: {
+			backgrounds: "#backgrounds",
+			trailers: "#trailers"
+		}
+	});
+});

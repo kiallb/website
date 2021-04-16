@@ -1,0 +1,30 @@
+/*global define */
+
+define([
+	'marionette',
+	'templates/templates',
+], function (Marionette, templates) {
+	'use strict';
+
+	var tab = Marionette.ItemView.extend({
+		template: templates.tab,
+		tagName: "li",
+		events: {
+			"click a": "clicked",
+		},
+		clicked: function(event){
+			event.preventDefault();
+			this.$el.addClass('active').siblings().removeClass('active');
+			this.trigger('tab:clicked', this.model);
+		}
+	});
+
+	return Marionette.CollectionView.extend({
+		itemView: tab,
+		setActiveTab: function(model){
+			var activeTab = this.children.findByModel(model);
+			activeTab.$el.addClass('active').siblings().removeClass('active');
+		}
+	});
+
+});

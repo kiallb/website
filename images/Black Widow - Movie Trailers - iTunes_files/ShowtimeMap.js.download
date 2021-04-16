@@ -1,0 +1,471 @@
+/*global define */
+
+define([
+    'marionette',
+    'templates/templates'
+], function (Marionette, templates) {
+    'use strict';
+
+    var offsets = {
+        latOffset: {
+            _default: 0,
+            z10: 0
+        }, // Used for smooth panning in shorter maps (offset for popup)
+        longOffset: {
+            _default: 0.025,
+            z6: 0.135,
+            z7: 0.135,
+            z8: 0.135,
+            z9: 0.135,
+            z10: 0.025
+        } // Used for smooth panning in shorter maps (offset for popup)
+    };
+
+    var mapIcons = [
+        "https://trailers.apple.com/trailers/global/images/showtimes/showtimes-marker-a.png",
+        "https://trailers.apple.com/trailers/global/images/showtimes/showtimes-marker-b.png",
+        "https://trailers.apple.com/trailers/global/images/showtimes/showtimes-marker-c.png",
+        "https://trailers.apple.com/trailers/global/images/showtimes/showtimes-marker-d.png",
+        "https://trailers.apple.com/trailers/global/images/showtimes/showtimes-marker-e.png"
+    ];
+
+    var getLocationPriority = [
+        false,
+        'cachedHTML5',
+        'HTML5',
+        'akamai'
+    ];
+
+
+
+    var MapInfoBox = Marionette.ItemView.extend({
+        template: templates.showtimeInfoBox,
+        tagName: 'div',
+        templateHelpers: {
+            deWidow: function(string, chars) {
+                if (!chars) chars = 3; // Max chars to keep with previous word
+                var s = string.split(' ');
+                string = "";
+                for (var i = 0; i < s.length; i++) {
+                    if (i == s.length - 1) {
+                        if (s[i].length <= chars) string += '&nbsp;' + s[i];
+                        else string += ' ' + s[i];
+                    } else {
+                        string += ' ' + s[i];
+                    }
+                }
+                return string;
+            },
+            getMileage: function(distance, coeff, aprox) {
+                if (!aprox) aprox = false;
+                var kmConvertion = 0.62137;
+                var rounded = Math.round(parseFloat(distance / kmConvertion) * coeff) / coeff;
+                //var miles = (rounded == 1 || rounded == 0) ? ' mile' : ' miles';
+
+                if (aprox) rounded = (rounded == 0) ? '<1' : '~' + rounded;
+
+                return rounded + ' km';
+            },
+            getQuals: function() { //
+                var quals = this.now_showing[0].quals.split('|');
+                var quals_string = '<br/><span class="quals">';
+                $.each(quals, function(i, q) {
+                    quals_string += q;
+                    if (i != quals.length - 1) quals_string += ', ';
+                });
+                quals_string += '</span>';
+                return quals_string;
+            },
+            getTier: function() {
+                var infoboxTier = 1;
+                var titleDeWidowed = this.deWidow(this.name);
+                var qualLength = this.now_showing[0].quals.length;
+                if (titleDeWidowed.length > 20) infoboxTier += .5;
+                if (titleDeWidowed.length > 40) infoboxTier += .5;
+                if (qualLength > 0) infoboxTier += .5;
+                if (qualLength > 30) infoboxTier += 1;
+                return Math.floor(infoboxTier);
+            },
+            getPhone: function() {
+                var phone = this.tel.split('-');
+                phone = "(" + phone[0] + ") " + phone[1] + "-" + phone[2];
+                return phone;
+            }
+        },
+        initialize: function(options) {
+            this.model.set('childIndex', options.childIndex);
+        },
+        onRender: function() {
+            this.templateHelpers.model = this.model;
+        }
+    });
+
+
+    // ========================================================
+    //
+    // SET UP THE Map
+    //
+    // ========================================================
+    return Marionette.CollectionView.extend({
+        itemView: MapInfoBox,
+        className: 'mapview',
+        tagName: 'div',
+        initialize: function(options) {
+
+            this.boundsMarkers = [];
+            this.infoWindows = [];
+            this.markers = {};
+			this.applemarkers = {};
+            this.bounds = [];
+            this.markerIndex = -1;
+            this.isShown = false;
+
+			// mapkit.init({apiKey: "938f9a8e0935cc632d603dbf86a2d8901b98e2d2"});
+
+            var root = '';
+            if (window.location.host.indexOf('trailers-stage') > -1) {
+                root = "https://trailers.apple.com";
+            }
+
+
+            mapkit.init({
+                authorizationCallback: function(done) {
+                    $.ajax(root+'/trailers/global/jwt/mapkit_jwt.php').done(function(response){
+                        done(response);
+                    });
+                },
+                language: app.locale
+            });
+
+			this.appleMap = new mapkit.Map(document.getElementById('applemap'));
+
+            this.on('map:updated', this.updated.bind(this));
+            this.collection.on('reset', this.updated.bind(this));
+        },
+        updateCoords: function(coord, callback) {
+            if (coord) {
+                this.coords = coord;
+                // var latlng = new google.maps.LatLng(this.coords.latitude, this.coords.longitude);
+                // if (this.gmap) {
+                //     this.gmap.map.setCenter(latlng);
+                // }
+
+                // var coder = new google.maps.Geocoder();
+                var postalCode = '';
+                var matches = null;
+                var geocoder = new mapkit.Geocoder();
+                var latlong = new mapkit.Coordinate(parseFloat(this.coords.latitude), parseFloat(this.coords.longitude)); 
+                geocoder.reverseLookup(latlong, function(err, data) {
+                    if (err) {
+                        return;
+                    }
+                    var address = data.results && data.results[0].formattedAddress.split(',');
+                    var zipPart = address[address.length-2];
+
+                    if (app.region === 'us') {
+                        matches = zipPart.match(/\d{5}/);
+                    }
+                    else {
+                        matches = zipPart.match(/[ABCEGHJ-NPRSTVXY][0-9][ABCEGHJ-NPRSTV-Z] [0-9][ABCEGHJ-NPRSTV-Z][0-9]/);
+                    }
+
+                    if (matches && matches.length) {
+                        postalCode = matches[0];
+                    }
+
+                    if (postalCode && callback) {
+                        callback(postalCode);
+                    }
+                });
+
+                // coder.geocode({
+                //     location: latlng,
+                //     region: 'CA'
+                // }, function (results, status) {
+                //     if (status === google.maps.GeocoderStatus.OK) {
+                //         if (results[0]) {
+                //             var l = results[0].address_components.length;
+                //             for (var i=0; i<l; i++) {
+                //                 if (results[0].address_components[i].types.indexOf('postal_code') > -1) {
+                //                     postalCode = results[0].address_components[i].long_name;
+                //                     continue;
+                //                 }
+                //             }
+                //             if (postalCode && callback) {
+                //                 callback(postalCode);
+                //             }
+                //         }
+                //     }
+                // });
+            }
+        },
+        activate: function() {
+            // this.gmap = {};
+            this.coords = this.coords || { "latitude":60, "longitude":-100 };
+            // this.gmap.options = {
+            //     zoom: 10,
+            //     mapTypeId: google.maps.MapTypeId.ROADMAP,
+            //     mapTypeControl: false,
+            //     youarehere: false,
+            //     scrollwheel: false,
+            //     center: new google.maps.LatLng(this.coords.latitude, this.coords.longitude)
+            // };
+
+            // this.gmap.map = new google.maps.Map(this.el, this.gmap.options);
+			
+			if(this.appleMap){
+				var map_region = new mapkit.CoordinateRegion(
+			        new mapkit.Coordinate(parseFloat(this.coords.latitude), parseFloat(this.coords.longitude)), 
+					new mapkit.CoordinateSpan(0.03, 0.03)
+			      );
+				this.appleMap.region = map_region;
+			}
+
+            this.$el.addClass('ready');
+            this.updated();
+
+        },
+        onShow: function() {
+            this.activate();
+            this.isShown = true;
+        },
+
+        updated: function() {
+            // $.each(this.markers, function(id, m){
+            //     m.setMap(null);
+            // });
+
+            var self = this;
+            // var bounds = [];
+            // this.collection.forEach(function(mod, i, arr){
+            //     self.addMarker(mod, i);
+            //     bounds.push([mod.attributes.lat, mod.attributes.long]);
+            // });
+
+			this.appleMap && this.appleMap.removeAnnotations(this.appleMap.annotations);
+
+            var annotations = [];
+			this.collection.forEach(function(mod, i, arr){
+				annotations.push(self.addAppleMarker(mod, i));
+            });
+
+            // add and show annotions on the apple map.
+            if (this.appleMap) {
+                this.appleMap.showItems(annotations);
+                if (this.appleMap.annotations.length){
+                    this.appleMap.annotations[0].selected = true;
+                }
+            }
+
+            // if (this.collection.length){
+            //     this.setBounds(this.createBounds(bounds));
+            // }
+        },
+
+        // appendHtml: function(cv, iv, i) {
+        //     //create infobox here
+        //     //debugger;
+        //     if (this.markerIndex > 0 && this.infoWindows[this.markerIndex]) {
+        //         this.infoWindows[this.markerIndex].close();
+        //         this.markerIndex = -1;
+        //     }
+
+        //     var self = this;
+        //     require(['infobox'], function(){
+        //         self.infoWindows[i] = (self.addInfoWindow(iv.$el.html()));
+        //         if (self.infoWindows.length === self.collection.length){
+        //             self.isdone = true;
+        //         }
+        //     });
+        // },
+        itemViewOptions: function(model, index) {
+            return {
+                childIndex: index
+            };
+        },
+
+
+        // toggleInfoBox: function(model) {
+        //     var i = model.attributes.childIndex;
+        //     if (this.markerIndex > -1 && this.markerIndex !== i && this.infoWindows[this.markerIndex]) {
+        //         this.infoWindows[this.markerIndex].close();
+        //     }
+        //     if (this.infoWindows[i] && this.markers[model.id]) this.infoWindows[i].open(this.gmap.map, this.markers[model.id]);
+        //     this.markerIndex = i;
+        // },
+
+        selectTheater: function(model) {
+            function getOffset(latorLong, zoom) {
+                return offsets[latorLong]['z' + zoom] !== undefined ? offsets[latorLong]['z' + zoom] : offsets[latorLong]['_default'];
+            }
+            var latlng = [parseFloat(model.attributes.lat), parseFloat(model.attributes.long)];
+
+            // var zoom = this.gmap.map.getZoom();
+            // this.panTo([latlng[0] + getOffset('latOffset', zoom), latlng[1] + getOffset('longOffset', zoom)]);
+            // this.toggleInfoBox(model);
+
+			for(var i = 0; i < this.appleMap.annotations.length; i++){
+				if(this.appleMap.annotations[i].coordinate.latitude == parseFloat(model.attributes.lat) && this.appleMap.annotations[i].coordinate.longitude == parseFloat(model.attributes.long) && this.appleMap.annotations[i].title == model.attributes.name){
+					this.appleMap.annotations[i].selected = true;
+				}
+			} 
+        },
+
+
+        // createLatLong: function(latlong) {
+        //     return new google.maps.LatLng(parseFloat(latlong[0]), parseFloat(latlong[1]));
+        // },
+        // createBounds: function(latlongs) {
+        //     var biggestLat = parseFloat(latlongs[0][0]),
+        //         biggestLong = parseFloat(latlongs[0][1]),
+        //         smallestLat = parseFloat(latlongs[0][0]),
+        //         smallestLong = parseFloat(latlongs[0][1]);
+
+        //     for (var i = 1; i < latlongs.length; i += 1) {
+        //         if (biggestLat < parseFloat(latlongs[i][0])) biggestLat = parseFloat(latlongs[i][0]);
+        //         if (biggestLong < parseFloat(latlongs[i][1])) biggestLong = parseFloat(latlongs[i][1]);
+        //         if (smallestLat > parseFloat(latlongs[i][0])) smallestLat = parseFloat(latlongs[i][0]);
+        //         if (smallestLong > parseFloat(latlongs[i][1])) smallestLong = parseFloat(latlongs[i][1]);
+        //     }
+
+        //     var sw = this.createLatLong([smallestLat, smallestLong]);
+        //     var ne = this.createLatLong([biggestLat, biggestLong]);
+
+        //     return new google.maps.LatLngBounds(sw, ne);
+        // },
+        // setBounds: function(bounds) {
+        //     this.gmap.map.fitBounds(bounds);
+        // },
+        // panTo: function(latlong) {
+        //     this.gmap.map.panTo(this.createLatLong(latlong));
+        // },
+        // s.gmap.boundsMarkers.push(this.gmap.createBounds(this.latlongsTemp));
+        // addMarker: function(model, i) {
+        //     // latlong, title, index, callback
+        //     // if(!index) index = 0;
+        //     // if(!callback) callback = function(e){ console.log(e) };
+
+
+        //     var image = new google.maps.MarkerImage(mapIcons[i],
+        //         new google.maps.Size(19, 29),
+        //         new google.maps.Point(0, 0),
+        //         new google.maps.Point(10, 29)
+        //     );
+
+        //     var shadow = new google.maps.MarkerImage("https://trailers.apple.com/trailers/global/images/showtimes/showtimes-marker-shadow.png",
+        //         // The shadow image is larger in the horizontal dimension
+        //         // while the position and offset are the same as for the main image.
+        //         new google.maps.Size(31, 15),
+        //         new google.maps.Point(0, 0),
+        //         new google.maps.Point(4, 16)
+        //     );
+
+        //     var self = this;
+
+        //     var marker = new google.maps.Marker({
+        //         position: self.createLatLong([model.attributes.lat, model.attributes.long]),
+        //         map: self.gmap.map,
+        //         title: model.attributes.name,
+        //         visible: true,
+        //         shadow: shadow,
+        //         icon: image
+        //     });
+
+
+        //     google.maps.event.addListener(marker, 'click', function() {
+        //         self.trigger('mapmarker:clicked', model);
+        //     });
+
+        //     this.markers[model.id] = marker;
+        // },
+
+		addAppleMarker: function(model, i) {
+	        var appleMark = new mapkit.ImageAnnotation(
+                new mapkit.Coordinate(parseFloat(model.attributes.lat), parseFloat(model.attributes.long)), 
+                {url:{1:mapIcons[i]}, size:{width: 19, height: 29}});
+			appleMark.visible = true;
+
+			var self = this;
+
+			var CALLOUT_OFFSET = new DOMPoint(-57, -10);
+			var landmarkAnnotationCallout = {
+		        calloutElementForAnnotation: function(annotation) {
+		        	return self.calloutForLandmarkAnnotation(annotation);
+		        }.bind(self),
+
+				calloutAnchorOffsetForAnnotation: function(annotation, element) {
+					return CALLOUT_OFFSET;
+				},
+
+				calloutAppearanceAnimationForAnnotation: function(annotation) {
+		          return "fadeIn .4s";
+		        }
+		    };
+			appleMark.callout = landmarkAnnotationCallout;
+			appleMark.title = model.attributes.name;
+            // this.appleMap.addAnnotation(appleMark).showAnnotations(this.appleMap.annotations);
+			// this.appleMap.addAnnotation(appleMark);
+            // this.appleMap.showItems(this.appleMap.annotations);
+			
+			// this.appleMap.annotations[0].selected = true;
+
+			this.applemarkers[model.id] = appleMark;
+            return appleMark;
+        },
+
+		calloutForLandmarkAnnotation: function(annotation){
+			var m;
+			for(var i = 0; i < this.collection.models.length; i++){
+				if(annotation.coordinate.latitude == parseFloat(this.collection.models[i].attributes.lat) && annotation.coordinate.longitude == parseFloat(this.collection.models[i].attributes.long) && annotation.title == this.collection.models[i].attributes.name){
+					m = this.collection.models[i];
+				}
+			}
+
+			var div = document.createElement("div");
+			div.className = 'landmark';
+			var title = div.appendChild(document.createElement("div"));
+			title.textContent = annotation.title;
+			title.className = 'markerTitle';
+			var address = div.appendChild(document.createElement("div"));
+			address.textContent = m.attributes.address.street;
+			address.className = 'markerInfo';
+			var city = div.appendChild(document.createElement("div"));
+			city.textContent = m.attributes.address.city + ", " + m.attributes.address.state + " " + m.attributes.address.postal_code;
+			city.className = 'markerInfo';
+			if(m.attributes.tel){
+				var phone = m.attributes.tel.split('-');
+				if(phone.length == 3){
+					var tel = div.appendChild(document.createElement("div"));
+					phone = "(" + phone[0] + ") " + phone[1] + "-" + phone[2];
+					tel.textContent = phone;
+					tel.className = 'markerInfo';
+				}
+			}
+			var rounded = Math.round(parseFloat(m.attributes.distance) * 1)/1;
+			var miles = (rounded == 1 || rounded == 0) ? ' mile' : ' miles';
+			rounded = (rounded == 0) ? '<1' : '~' + rounded;
+			rounded += miles;
+
+			var distance = div.appendChild(document.createElement("div"));
+			distance.textContent = rounded;
+			distance.className = 'markerInfo';
+
+
+			return div;
+		},
+
+        addInfoWindow: function(content, latlong, offset) {
+            //var offset = this.parent.options.tms_id ? new google.maps.Size(-62, -210) : new google.maps.Size(-62, -190);
+            var options = {
+                content: content,
+                pixelOffset: new google.maps.Size(-62, -210),
+                disableAutoPan: false,
+                closeBoxURL: "https://trailers.apple.com/trailers/global/images/showtimes/showtimes-map-infobox-close.png",
+                closeBoxMargin: "11px 20px 0 0"
+            }
+            return new InfoBox(options);
+        }
+    });
+
+
+});

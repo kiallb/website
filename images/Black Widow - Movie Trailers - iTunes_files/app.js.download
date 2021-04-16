@@ -1,0 +1,851 @@
+/*global define */
+/* jshint sub: true, laxbreak: true, eqnull: true, funcscope: true, indent: 4 */
+
+define(['marionette',
+	'views/header/Base',
+	'views/main/Base',
+	'views/footer/Base',
+	'views/header/Heros',
+	'views/header/Trailers',
+	'views/main/Tabs',
+	'controllers/panels',
+	'views/main/Details',
+	'views/main/Related',
+	'views/main/Reviews',
+	'views/main/Gallery',
+	'views/overlay/Region',
+	'views/overlay/Gallery',
+	'views/overlay/Videos',
+	'views/overlay/Showtime',
+	'Cookies',
+	'moment'],
+function (Marionette, Header, Main, Footer, Heros, Trailers, Tabs, PanelController, Details, Related, Reviews, Gallery, Overlay, OverlayGallery, OverlayVideo, OverlayShowtime, Cookies, moment) {
+	'use strict';
+
+
+	// Application
+	var regionFilter	= ['en-us', 'en-ca', 'fr-ca'];
+	var lang 			= ((navigator.languages && navigator.languages.length && navigator.languages[0]) || navigator.language || navigator.browserLanguage || 'en-us').split('-');
+	var app 			= new Marionette.Application();
+		app.locale      = Cookies.get('trailers_language') || lang[0].toLowerCase() || 'en';
+		app.locale      = app.locale.substring(0, 2);
+		app.region      = 'us';
+		app.regionMod	= '/trailers/';
+
+
+	// BEGIN TESTING
+	if (window.location.href.match(/\w+:\/\/trailers-itunes-dev/i) ||
+		window.location.href.match(/\w+:\/\/trailers-ca/i) ||
+		window.location.href.match(/\w+:\/\/trailers-kraken/i) ||
+		window.location.hash == '#showtime-test'
+	) {
+		app.isDev = true;
+	}
+	// END TESTING
+
+
+	var splitPath = window.location.pathname.split('/');
+	if (splitPath.length > 1 && splitPath[1] !== 'trailers') {
+		if (splitPath.length > 2 && splitPath[1] === 'webcluster35') {
+			app.region = splitPath[2];
+		}
+		else {
+			app.region = splitPath[1];
+		}
+		app.regionMod = '/'+app.region+'/';
+	}
+
+	// The current locale/region is not supported, default it to the US english version.
+	if (regionFilter.indexOf(app.locale+'-'+app.region) < 0) {
+		app.locale = 'en';
+		app.region = 'us';
+	}
+
+	Cookies.set('trailers_language', app.locale, { expires: 7, path: '/' });
+
+	var itrvl = setInterval(function(){
+		if (app.locale !== Cookies.get('trailers_language')){
+			window.location.reload();
+		}
+	}, 1000);
+
+
+	var globalfooter 	= $('#globalfooter');
+	var ua 		= navigator.userAgent;
+	var jqBody  = $('body');
+
+	// Is this an ipad?
+    var iPad 	= ua.match(/iPad/i) != null || /iPad/i.test(ua) || /iPhone OS 3_1_2/i.test(ua) || /iPhone OS 3_2_2/i.test(ua);
+    app.iPad 	= iPad;
+    if(iPad) {
+    	jqBody.addClass('isIpad');
+    }
+
+	//Check if the 
+    app.iTunes = ua.match('iTunes') || (navigator.userAgent.match('iTunes/9'));
+    if (app.iTunes) {
+    	jqBody.addClass('itunes');
+    }
+
+// Mozilla/5.0 (Linux; Android 4.3; Nexus 7 Build/JSS15Q) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2307.2 Safari/537.36
+	//Check for android
+
+	var androidVersion = 0;
+	app.isAndroid = ua.match(/android (\d+)/i);
+	if (app.isAndroid) {
+		jqBody.addClass('android');
+		if (app.isAndroid.length > 1) {
+			androidVersion = parseInt(app.isAndroid[1]);
+			if (androidVersion > 4){
+				app.videoError = 'ref-android-lollipop-error';
+			}
+			else {
+				var version = parseInt(ua.match(/chrome\/(\d+)/i)[1]);
+				if (version < 42){
+					app.videoError = 'ref-android-chrome-error';
+					// jqBody.prepend('<div class="page-warning" data-lang="ref-android-version-error"></div>');
+				}
+			}
+		}
+	}
+
+	app.isFirefox = ua.match('Firefox');
+
+	//Test for if using Firefox on Mac OS 10.11, the quicktime plugin is not easily installed.
+	// if (app.isFirefox && ua.match(/Mac OS X 10[_\.](\d+)/i)){
+	// 	var fireVer = parseInt(ua.match(/Mac OS X 10[_\.](\d+)/i)[1]);
+	// 	if (fireVer > 10) {
+	// 		app.videoError = 'ref-firefox-version-error';
+	// 	}
+	// }
+
+	app.isRetina = ((window.matchMedia && (window.matchMedia('only screen and (min-resolution: 124dpi), only screen and (min-resolution: 1.3dppx), only screen and (min-resolution: 48.8dpcm)').matches || window.matchMedia('only screen and (-webkit-min-device-pixel-ratio: 1.3), only screen and (-o-min-device-pixel-ratio: 2.6/2), only screen and (min--moz-device-pixel-ratio: 1.3), only screen and (min-device-pixel-ratio: 1.3)').matches)) || (window.devicePixelRatio && window.devicePixelRatio > 1.3));
+
+	// Region Animation
+	Marionette.Region.prototype.open = function(view){
+	  this.$el.hide();
+	  this.$el.html(view.el);
+	  this.$el.fadeIn();
+	};
+
+	// Regions
+	app.addRegions({
+        header  	: '#header-wrapper',
+        main 		: '#main-wrapper',
+        footer 		: '#globalfooter',
+        overlay 	: Overlay
+	});
+
+
+	// Model/Collection Creator
+	var collection_types = {
+        Page        	: Backbone.Model.extend(),
+        Heros 			: Backbone.Collection.extend(),
+        Showtimes 		: Backbone.Model.extend(),
+        Theaters 		: Backbone.Model.extend(),
+        TheatersInfo 	: Backbone.Model.extend(),
+        TheatersPages 	: Backbone.Collection.extend(),
+        TheatersCurrent : Backbone.Collection.extend(),
+        Panels 			: Backbone.Collection.extend(),
+        Details 		: Backbone.Model.extend(),
+        Related 		: Backbone.Model.extend(),
+        Reviews 		: Backbone.Model.extend(),
+        Gallery 		: Backbone.Model.extend(),
+        Photos 			: Backbone.Collection.extend(),
+        Clips 			: Backbone.Collection.extend(),
+        City 			: Backbone.Collection.extend(),
+        Footer 			: Backbone.Model.extend()
+	};
+	var collections = {};
+
+
+	app.videoResults = window.corePlayer.videoSupport;
+
+	// Once collection has loaded, set fire to the rain.
+	app.vent.bind('collections::populated', function(options){
+
+		// ========================================================
+		//
+		// SET UP ALL THE VIEWS AND CONTROLLERS OF VIEWS
+		//
+		// ========================================================
+
+		//Dirty Filter
+		var movie_ratings = _.omit(collections.Page.get('movie_ratings'), function(item){
+			return (item.indexOf('NotYetRated') > -1) || (item.indexOf('NotRated') > -1) || (item.indexOf('NR') > -1);
+		});
+		collections.Page.set('movie_ratings', movie_ratings);
+
+		// Arena Views
+		var header 		= new Header({model: collections.Page}),
+			backgrounds = new Heros({collection: collections.Heros}),
+			trailers 	= new Trailers({collection: collections.Clips});
+
+
+		// Main Content Views
+		var main 		= new Main({model: collections.Page, collection: collections.Showtimes, id: "main", className: "main content"}),
+			footer 		= new Footer({model: collections.Footer}),
+			tabs 		= new Tabs({collection: collections.Panels, tagName: "ul"});
+
+		var	panels 		= {
+				"details"	: new Details({model: collections.Details, tagName:"section", className:"content-section details", "id":"panel-details"}),
+				"related"	: new Related({model: collections.Related, tagName:"section", className:"content-section related", "id":"panel-related"}),
+				"reviews"	: new Reviews({model: collections.Reviews, tagName:"section", className:"content-sectionw revies", "id":"panel-reviews"}),
+				"gallery"	: new Gallery({model: collections.Gallery, collection: collections.Photos, tagName:"section", className:"content-section gallery", "id":"panel-gallery"})
+			};
+
+		// Specialized Views
+		if(collections.Gallery){
+			var overlayGallery 		= new OverlayGallery({collection: collections.Photos, tagName:"section", id:"overlay-gallery"});
+		}
+		if(collections.Showtimes){
+			var overlayShowtime 	= new OverlayShowtime({model: collections.Theaters, tagName:"section", id:"overlay-showtime"});
+		}
+		var overlayVideo 			= new OverlayVideo({collection: collections.Clips, tagName:"section", id:"overlay-video"});
+
+		// Show The Views
+		app.header.show(header);
+		header.backgrounds.show(backgrounds);
+		header.trailers.show(trailers);
+
+		app.main.show(main);
+		main.tabs.show(tabs);
+
+		app.footer.show(footer);
+
+		// Setup Panel Controller Instance
+		var panelController = new PanelController({
+            "region"        : main.panels,
+            "panels"        : panels,
+            "collection"    : collections.Panels,
+            "tabs"          : tabs,
+            "featured"      : app.featured
+		});
+
+
+		// ========================================================
+		//
+		// START UP MISSION CONTROL
+		//
+		// ========================================================
+
+		// Set up events on tabs
+		tabs.on('itemview:tab:clicked', function(childView, model){
+			var model_name = model.attributes.panel_name.toLowerCase();
+			app.appRouter.navigate('//'+model_name, false);
+			panelController.swapPanels(model);
+		});
+
+		trailers.on('itemview:trailer:clicked', function(childView, model){
+			if (app.iTunes) {
+				try {
+					if (iTunes) {
+						iTunes.playURL({
+							"kind":model.get('kind'),
+							"artist":model.get('artist'),
+							"faded":model.get('runtime'),
+							"posted":model.get('posted'),
+							"title":model.get('title'),
+							"runtime":model.get('runtime'),
+							"url":model.get('versions').enus.sizes.hd720.src,
+							"height":model.get('versions').enus.sizes.hd720.height,
+							"width":model.get('versions').enus.sizes.hd720.width
+						});
+					}
+				}
+				catch(e) {
+					if (app.isDev){
+						console.log(e.message);
+					}
+				}
+			}
+			else {
+				//check for video errors
+				var useHls = model.get('versions')['enus'].sizes.is_hls && window.corePlayer.videoSupport.hls;
+				var doError = (app.videoError && app.isFirefox) && !useHls;
+				if (doError) {
+					alert(app.langBank[app.videoError]);
+				}
+				else {
+					// Gallery video has been clicked!  Release the Kraken!
+					overlayVideo.model = model;
+					overlayVideo.model.set('trailer_url', 		collections.Page.get('trailer_url'));
+					overlayVideo.model.set('twitter_message', 	collections.Details.get('twitter_message'));
+					overlayVideo.model.set('official_url', 		collections.Details.get('official_url'));
+
+					app.overlay.show(overlayVideo);
+				}
+			}
+
+		});
+
+		panels.gallery.on('itemview:thumb:clicked', function(childview, model){
+			// Gallery image has been clicked!  Release the Kraken!
+			overlayGallery.model = model;
+			app.overlay.show(overlayGallery);
+		});
+
+		main.on('showimes:clicked', function(tms, zip, selected_date, city){
+         //    var date_today =  new Date();
+        	// if(selected_date) date_today.setTime(selected_date);
+         //    date_today.setHours(0,0,0,0);
+
+         //    var show_date 			= date_today.getFullYear() + '-' + ('0' + (date_today.getMonth()+1)).slice(-2) + '-' + ('0' + date_today.getDate()).slice(-2);
+			overlayShowtime.tms = tms;
+
+			var current_showtime = _.filter(collections.Showtimes.attributes, function(showtime) {
+				return showtime.showtime_id == tms;
+			});
+
+            var show_moment 		= (selected_date) ? moment(selected_date, 'YYYY-MM-DD') : moment({hour: 0, minute: 0, second: 0, millisecond: 0});
+			var postal 				= (zip) ? zip : "000000";
+            var show_date 			= show_moment.format('YYYY-MM-DD');
+
+
+			var theater_url 		= "https://trailers.apple.com"+app.regionMod+"global/scripts/showtimes.theaters.php?"
+				+ "distance=100&limit=30&items_per_page=5"
+				+ "&show_date=" 	+ show_date
+				+ "&tribune_id=" 	+ tms
+				+ "&postal_code="   + encodeURI(postal);
+				
+			if (city) {
+				theater_url += "&location_lat=" + city.lat + "&location_long=" + city.long;
+			}
+			
+			collections.TheatersInfo.set({
+				"name": current_showtime.length ? current_showtime[0].name : '',
+				"selected_date": show_date,
+				"tms_id": current_showtime.length ? current_showtime[0].showtime_id : ''
+			});
+
+			var buildUrl = function() {
+				var theater_url 		= "https://trailers.apple.com"+app.regionMod+"global/scripts/showtimes.theaters.php?"
+					+ "distance=100&limit=30&items_per_page=5"
+					+ "&show_date=" 	+ show_date
+					+ "&tribune_id=" 	+ tms; 
+
+				if (city) {
+					theater_url += "&location_lat=" + city.lat + "&location_long=" + city.long;
+				}
+				else {
+					theater_url += "&postal_code="   + encodeURI((zip) ? zip : "000000");
+				}
+
+				return theater_url;
+			};
+
+			if (!zip && !city) {
+				//Look for your location and base the serch from there.
+	            if (Cookies.get('stcity')){
+	                city = {
+	                    lat: Cookies.get('stlat'),
+	                    long: Cookies.get('stlong'),
+	                    cityname: Cookies.get('stcityname'),
+	                    city: Cookies.get('stcity'),
+	                    state: Cookies.get('ststate')
+	                };
+	                overlayShowtime.coords={latitude: city.lat, longitude: city.long};
+	            }
+	            else if (Cookies.get('stzip')) {
+	                zip = Cookies.get('stzip');
+	            }
+	            else if(navigator.geolocation){
+	            	var geoLocInProgress = true;
+
+	            	if (location.protocol === 'http:'){
+	            		app.getShowtimes(buildUrl());
+	            	}
+	            	else {
+		                navigator.geolocation.getCurrentPosition(function(position){
+		                    city = {
+		                        lat: position.coords.latitude,
+		                        long: position.coords.longitude,
+		                        cityname: '',
+		                        city: '',
+		                        state: '',
+		                    };
+		                    if (overlayShowtime.map) {
+				                overlayShowtime.map.trigger('location:loaded', {latitude: city.lat, longitude: city.longitude});
+				            }
+			                overlayShowtime.coords = { latitude: position.coords.latitude, longitude: position.coords.longitude };
+			               	app.getShowtimes(buildUrl());
+		                	},
+		                	function() {
+		                		app.getShowtimes(buildUrl());
+		                	}
+						);
+		            }
+	            }
+	        }
+
+            if (!geoLocInProgress){
+				app.getShowtimes(buildUrl());
+			}
+		});
+
+		app.vent.bind('citylist::populated', function(response){
+			if(overlayShowtime.isShown) {
+				if (response.length && response[0].status == 'ok') {
+					collections.CityList.reset(response[0].result);
+					collections.Theaters.set({
+						'city': collections.CityList
+					});
+				}
+			}
+		});
+
+
+		app.vent.bind('showtimes::populated', function(response){
+
+			collections.TheatersPages.reset(response[0].pages);
+			collections.TheatersCurrent.reset(response[0].pages[0]);
+
+			collections.TheatersInfo.set('movie_rating', collections.Page.get('movie_rating'));
+			collections.TheatersInfo.set('movie_ratings', collections.Page.get('movie_ratings'));
+
+			if(response[0].pages.length) {
+				collections.TheatersInfo.set('run_time', response[0].pages[0][0].now_showing[0].run_time);
+			}
+
+
+			collections.Theaters.set({
+				"info": collections.TheatersInfo,
+				"pages": collections.TheatersPages,
+				"current_page": collections.TheatersCurrent
+			});
+
+
+			if(!overlayShowtime.isShown) {
+				app.overlay.show(overlayShowtime);
+
+				overlayShowtime.on('close:clicked', function() {
+					app.overlay.hideModal();
+				});
+
+				overlayShowtime.head.on('city:request', function(city) {
+					var url = app.regionMod+"global/scripts/showtimes.cities.php?city="+city+"&limit=12";
+					app.getCityNames(url);
+				});
+
+				overlayShowtime.head.on('showtimes:update', function(tms, zip, tms_id, show_date, city){
+					main.trigger("showimes:clicked", tms, zip, tms_id, show_date);
+				});
+
+		        overlayShowtime.pager.on('itemview:pager:clicked', function(childView, model){
+		            var page_array = _.filter(model.attributes, function(page) { return typeof page === 'object'; });
+		            collections.TheatersCurrent.set(page_array);
+		            if (overlayShowtime.map) {
+			            overlayShowtime.map.trigger('map:updated');
+			        }
+			        overlayShowtime.pager.setPager(model);
+		        });
+
+		        overlayShowtime.pager.on('pager:clicked', function(childView, model){
+		        	overlayShowtime.pager.trigger("itemview:pager:clicked",null, model);
+		        });
+
+			}
+
+		});
+
+		app.overlay.on('show', function(){
+			$('body').addClass('overlaid');
+			backgrounds.pauseRotation();
+			panelController.hidePanel();
+			globalfooter.hide();
+		});
+
+		app.overlay.on('overlay:hide', function(){
+			$('body').removeClass('overlaid');
+			backgrounds.startRotation();
+			panelController.showPanel();
+			globalfooter.show();
+		});
+
+		app.overlay.on('overlay:clicked', function(childView, model){
+			app.overlay.hideModal();
+		});
+
+		overlayVideo.on('close:clicked', function(childView, model){
+			app.overlay.hideModal();
+		});
+		
+		if(collections.Gallery){
+			overlayGallery.on('close:clicked', function(childView, model){
+				app.overlay.hideModal();
+			});
+		}
+
+		// Kneel before Zod
+		app.vent.bind('trailers:filter', function(param){
+			panelController.setInitial(param);
+		});
+
+
+		// Backbone.history.start({pushState: false, root: location.pathname});
+		if (app.isDev) {
+			console.log("%c ☉ "+collections.Page.attributes.movie_title+" ☉ " + app.locale +" ☉ ", "color: #CF5300 ; font-size: 26px; font-family: 'Helvetica-Neue', Helvetica, Arial, sans-serif;");
+		}
+	});
+
+
+	// ========================================================
+	//
+	// APPLICATION INITALIZERS
+	//
+	// ========================================================
+	// Initializers
+	app.addInitializer(function () {
+		app.localize();
+	});
+
+	app.on("initialize:after", function(){
+	  $('body').animate({opacity:1, duration: 1000});
+	});
+
+
+
+	// ========================================================
+	//
+	// CITY LIST
+	//
+	// ========================================================
+	//
+	app.getCityNames = function(city_url){
+
+		// BEGIN TESTING
+		if (app.isDev) {
+			city_url = 'data/city.json';
+		}
+		// console.log(city_url);
+		// city_url = 'data/city.json';
+		// END TESTING
+
+		$.getJSON(city_url)
+		.done(function(response){
+			// FIRE - showtimes::populated
+			// response = [
+			//   {
+			//     "status": "ok",
+			//     "searched_for": "sa",
+			//     "result": []
+			//   }
+			// ];
+	        app.vent.trigger("citylist::populated", response);
+		})
+		.fail(function() {
+			if (app.isDev) {
+				console.log('We were unalble to retrieve showtimes data at this time. Please try again later.');
+			}
+		});
+
+	};
+
+	// ========================================================
+	//
+	// SHOWTIMES ELEMENTS
+	//
+	// ========================================================
+	//
+	app.getShowtimes = function(trailer_url){
+
+
+		// BEGIN TESTING
+		// For Testing only adjust this value to local JSON
+		if (app.isDev) {
+			console.log(trailer_url);
+			var randy = Math.floor(Math.random() * 4) + 1;
+			trailer_url = 'data/theater.json';
+		}
+		// END TESTING
+
+		$.getJSON(trailer_url)
+		.done(function(response){
+			// FIRE - showtimes::populated
+	        app.vent.trigger("showtimes::populated", response);
+		})
+		.fail(function() {
+			if (app.isDev) {
+				console.log('We were unalble to retrieve showtimes data at this time. Please try again later.');
+			}
+		});
+
+	};
+
+
+	// ========================================================
+	//
+	// LOCALIZE INTERFACE ELEMENTS
+	//
+	// ========================================================
+	//
+	app.localize = function(){
+		$.getJSON("/trailers/global/v4/localization/"+ app.region + "/locale.json")
+		.done(function(response){
+			app.locales		= response.types;
+			app.flag	 	= response.flagicon;
+			app.countryName	= response.countryName;
+			// collection_types['Footer'] 	= Backbone.Model.extend();
+
+			// Check out the locale versions fo the language bank, however if it doesn't exists default to the EN version.
+			app.langBank 	= response.bank[app.locale] || response.bank.en;
+			app.langLink 	= response.linkText[app.locale] || response.linkText.en;
+			var footerData  = response.footer[app.locale] || response.footer.en;
+
+			if (app.iTunes) {
+				footerData.sections = footerData.itunes;
+			}
+			collections.Footer = new collection_types.Footer(footerData);
+
+			app.populate();
+		})
+		.fail(function() {
+			console.warn( "No locale data exists or the data is malformed. Aborting Load" );
+		});
+
+	};
+
+
+	// ========================================================
+	//
+	// POPULATE THE DATA (COLLECTIONS AND MODELS) FROM A SINGLE JSON
+	//
+	// ========================================================
+	app.populate = function() {
+		var data_url = "data/page.json";
+		var film_id_url = "";
+		
+		if (typeof FilmId !== 'undefined') {
+			film_id_url = app.regionMod + "feeds/data/"+FilmId+".json";
+		    
+			$.ajax({
+				url: film_id_url,
+				dataType: 'json',
+				async: false,
+				global: false,
+				success: function(data) {
+					data_url = film_id_url;
+				}
+			});
+		}
+
+		// var warning = $('.page-warning');
+		// if (warning) {
+		// 	var lang = warning.attr('data-lang');
+		// 	warning.html(app.langBank[lang]);
+		// }
+
+		$.getJSON(data_url)
+			.done(function(response) {
+
+				var localeIt = function(collection){
+					_.forEach(collection, function(model){
+						if (_.isArray(model)) {
+							localeIt(model);
+						}
+						else if (_.isObject(model)) {
+							if(model.locale){
+					   			var model_locale 	= (model.locale[app.locale]) ? app.locale : 'en';
+					   			var active_locale 	= model.locale[model_locale];
+					   			delete model.locale;
+
+					   			if (_.isArray(active_locale)) {
+					   				model = active_locale;
+					   			}
+					   			else {
+					   				_.merge(model, active_locale);
+					   			}
+
+							}else{
+								localeIt(model);
+							}
+
+						}
+					});
+				};
+
+				localeIt(response);
+
+				for (var name in collection_types) {
+
+					   	// Panels is not in the response so make a special case for it.
+					   	if (name === "Panels"){
+					   		collections[name] = new collection_types[name](response[name.toLowerCase()]);
+					   	}
+					   	// Create a new model or photo collection
+						else if(response['gallery']
+							&& response.gallery[name.toLowerCase()]
+					   		&& name === "Photos"){
+					   		collections[name] = new collection_types[name](response.gallery[name.toLowerCase()]);
+					   		collections.Gallery.set("photos", collections[name]);
+					   	}
+
+					   	if (name === "Heros") {
+					   		var heroSection = response[name.toLowerCase()];
+					   		var bg = app.isRetina ? 'backgrounds_2x' : 'backgrounds';
+					   		var bgCollection = heroSection[bg];
+
+					   		if (!bgCollection || bgCollection.length == 0) {
+					   			bgCollection = heroSection.backgrounds;
+					   		}
+					   		// adding test in case the data is not complete missing the background option
+					   		if (!bgCollection || bgCollection.length == 0) {
+					   			bgCollection = (app.isRetina && heroSection[1]) || heroSection[0];
+					   		}
+
+					   		collections[name] = new collection_types[name](bgCollection);
+					   	}
+					   	else if(response[name.toLowerCase()]){
+					   		var model = response[name.toLowerCase()];
+					   		collections[name] = new collection_types[name](model);
+					   	}
+
+					   	// Add in the appropriate panels
+					   	if(response[name.toLowerCase()] && (
+					   			   name === "Details"
+					   			|| name === "Related"
+					   			|| name === "Reviews"
+					   			|| name === "Gallery")){
+					   		collections.Panels.add(collections[name]);
+					   	}
+
+	            }
+
+	            collections.Page.set('showtimes', []);
+	            // Get Showtimes and if it exists get it into Page
+				if(response.showtimes.length){
+					collections['Showtimes'] 		= new collection_types['Showtimes'](response.showtimes);
+					collections.Page.set('showtimes', response.showtimes);
+
+					collections['TheatersInfo'] 	= new collection_types['TheatersInfo']({
+						"name": response.showtimes[0].name,
+						"tms_id" : response.showtimes[0].showtime_id,
+						"selected_date":"00-00-0000",
+						'movie_ratings': collections.Page.get('movie_ratings'),
+						'showtimes': response.showtimes
+					});
+					collections['TheatersPages'] 	= new collection_types['TheatersPages']({});
+					collections['TheatersCurrent'] 	= new collection_types['TheatersCurrent']({});
+					collections['CityList'] 		= new collection_types['City']([]);
+					collections['Theaters'] 		= new collection_types['Theaters']({
+						"info": collections.TheatersInfo,
+						"pages":collections.TheatersPages,
+						'current_page': collections.TheatersCurrent,
+						'city': collections.CityList
+					});
+
+
+				}
+
+	            // Check for featured content :: Dictates which panel is shown first.
+	            // Check if it is available same day or it is after the release date.
+
+	            if(response.related && response.related.featured && response.related.featured.available_date) {
+					/*var releaseDate 	= new Date(response.page.release_date);
+						releaseDate.setDate(releaseDate.getDate() + 1);
+	            	var todaysDate 		= new Date();
+					var availableDate 	= new Date(response.related.featured.available_date);
+
+
+	            	if( releaseDate.getTime() == availableDate.getTime()
+	            		|| todaysDate.getTime() >= releaseDate.getTime()) app.featured = true;*/
+					app.featured = true;
+	            }
+
+	            // FIRE - collection::populated
+	            app.vent.trigger("collections::populated");
+
+			})
+			.fail(function() {
+				console.warn( "No data exists or the data is malformed." );
+		});
+	};
+
+	// ========================================================
+	//
+	// EXTENDERS
+	//
+	// ========================================================
+
+	_.extend(Backbone.Collection.prototype, {
+	    // return next model or the beginning if at the end
+	    next: function(model) {
+	        return this.at((this.indexOf(model) + 1) % _.size(this));
+	    },
+
+	    // return the previous model or the end if at the beginning
+	    prev: function(model) {
+	        var index = this.indexOf(model) - 1;
+	        return this.at(index > -1 ? index : _.size(this) - 1);
+	    }
+	});
+
+	_.extend(Marionette.View.prototype, {
+
+    	onBeforeRender: function(){
+		        var helpers = this.templateHelpers;
+		        var ext = {
+		        	httpsFix: function(val, render) {
+		        		var rtn = val;
+		        		if (val.indexOf('http://trailers.apple.com') == 0) {
+		        			rtn = val.replace('http://', 'https://');
+		        		}
+		        		return rtn;
+		        	},
+					localized : function (val, render) {
+						var rtn = app.langBank['ref-'+val.toLowerCase().replace(/\ /g, '-')];
+
+						if (!!rtn && rtn.indexOf('@@year@@') > -1) {
+							var today = new Date();
+							rtn = rtn.replace('@@year@@', today.getFullYear());
+						}
+
+						if (app.isDev){
+							if (!rtn && app.isDev) {
+								console.log("Missing Translation: " + val);
+							}
+						}
+						return rtn || val;
+					},
+					langToggle : function(val, render){
+						return app.langLink || val;
+					},
+					showLanguageToggle: function(text){
+						var link = '';
+						if (app.locales.length > 1) {
+							link = '<span class="lang-toggle"><a href="#" id="languageToggle">'+text+'</a></span>';
+						}
+						return link;
+					},
+					getImage: function(imgName, obj) {
+						if (!obj) {
+							obj = this;
+						}
+						if (app.isRetina && obj[imgName+'_2x']){
+							return obj[imgName+'_2x'];
+						}
+						else {
+							return obj[imgName];
+						}
+					},
+					getLangRegionCode: function() {
+						return app.locale+'_'+app.region.toUpperCase();
+					}
+				};
+
+
+	            if(helpers) {
+	            	if(!helpers.localized){
+		            	$.extend( helpers, ext);
+	            	}
+	            }else{
+	            	this.templateHelpers = ext;
+	            }
+
+	    }
+	});
+
+
+	// Return the magic
+	return (window.app = app);
+});

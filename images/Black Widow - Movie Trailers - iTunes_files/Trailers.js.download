@@ -1,0 +1,114 @@
+/*global define */
+
+define([
+  'marionette',
+  'templates/templates',
+  'jquery',
+  'traynav',
+  'dropit'
+], function (Marionette, templates) {
+  'use strict';
+
+  var iOS = /(iPad|iPhone|iPod)/g.test( navigator.userAgent );
+  var android = /android/i.test(navigator.userAgent);
+
+  var thumbnail = Marionette.ItemView.extend({
+    tagName: "li",
+    className: (iOS || android) ? "trailer native-trailer" : "trailer",
+    template: (iOS || android) ? templates.nativeclip : templates.clip,
+    events: {
+      "click .link-play"    : "clicked",
+      "click .native-click" : "nativeClick",
+      "click .link-download" : "downloadClick",
+    },
+    ui: {
+      video: ".video-element"
+    },
+    templateHelpers:{
+      videoSource: function(){
+        var canPlay = app.videoResults;
+
+        if (this.versions['enus'].sizes.is_hls && canPlay.hls) {
+          return this.versions['enus'].sizes['hd720'].src;
+        }
+        if (window.corePlayer.isSafari() && !iOS) {
+          return this.versions['enus'].sizes['hd720'].src;
+        }
+        else if (canPlay.h264) {
+          return this.versions['enus'].sizes['hd720'].srcAlt;
+        }
+
+      },
+    },
+    clicked: function(event){
+      event.preventDefault();
+      this.trigger('trailer:clicked', this.model);
+    },
+    downloadClick: function(event) {
+      event.preventDefault();
+      // this.tooltip.tooltip('open');
+    },
+    onShow: function(){
+      if(iOS || android){
+        this.ui.video[0].addEventListener("play",                 this.iosFull.bind(this), false);
+        this.ui.video[0].addEventListener('webkitendfullscreen',  this.closeit.bind(this), false);
+        this.ui.video[0].addEventListener('webkitfullscreenchange',     this.fullchange.bind(this), false);
+        this.ui.video[0].addEventListener('ended',               this.closeit.bind(this), false);
+      }
+    },
+    onClose: function(){
+      if(iOS || android ){
+        this.ui.video[0].removeEventListener("play",                this.iosFull.bind(this), false);
+        this.ui.video[0].removeEventListener('webkitendfullscreen', this.closeit.bind(this), false);
+        this.ui.video[0].removeEventListener('webkitfullscreenchange',     this.fullchange.bind(this), false);
+        this.ui.video[0].removeEventListener('ended',               this.closeit.bind(this), false);
+      }
+    },
+    fullchange: function(evt) {
+      if (!document.webkitFullscreenElement && android) {
+        this.closeit();
+      }
+    },
+    closeit: function(){
+      this.ui.video[0].currentTime = 0;
+      this.ui.video[0].pause();
+      this.ui.video[0].webkitExitFullscreen();
+    },
+    nativeClick: function(){
+      var useHls = this.model.get('versions')['enus'].sizes.is_hls && app.videoResults.hls;
+      if (app.videoError && !useHls) {
+        alert(app.langBank[app.videoError]);
+      }
+      else {
+        this.ui.video[0].play();
+        if (android) {
+          this.ui.video[0].webkitRequestFullScreen();
+        }
+      }
+    },
+    iosFull: function(){
+      this.ui.video[0].webkitEnterFullscreen();
+    },
+    initialize: function(options) {
+      this.model.set('childIndex', options.childIndex);
+    },
+    onRender: function() {
+      this.$el.find('.list-trailer-actions').dropit();
+    }
+  });
+
+  return Marionette.CompositeView.extend({
+    itemView: thumbnail,
+    itemViewContainer: ".scroll-content",
+    template: templates.clips,
+    itemViewOptions: function(model, index) {
+        return {
+          childIndex: index
+      };
+    },
+    onShow: function(){
+      this.traynav = this.$el.traynav();
+    }
+  });
+
+});

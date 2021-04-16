@@ -1,0 +1,743 @@
+/*global define */
+define([
+    'marionette',
+    'templates/templates',
+    'views/overlay/ShowtimeMap',
+    'moment',
+    'Cookies'
+    // 'loadmap'
+], function(Marionette, templates, ShowtimeMap, moment, Cookies) {
+    'use strict';
+
+    var days = {
+        en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        fr: ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']
+    };
+
+    var months = {
+        en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        fr: ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre']
+    };
+
+    // ========================================================
+    //
+    // SET UP THE City Dropdown Item
+    //
+    // ========================================================
+    var CityItem = Marionette.ItemView.extend({
+        template: templates.showtimeCity,
+        tagName: 'li',
+        events: {
+            "click": "clicked"
+        },
+        clicked: function(event) {
+            if (event){ event.preventDefault(); }
+            this.trigger('city:clicked', this.model);
+        },
+        initialize: function(options) {
+            // this.model.set('childIndex', options.childIndex);
+            if (this.model){
+                this.model.on('change', _.bind(this.update, this));
+            }
+        },
+        templateHelpers: {
+            toTitleCase: function (str) {
+                return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+            }
+        },
+        update: function() {
+            this.$el[this.model.get('active')?'addClass':'removeClass']('active');
+        },
+        onRender: function() {
+            if (this.model.get('active')) {
+                this.$el.addClass('active');
+            }
+        }
+    });
+
+
+
+    // ========================================================
+    //
+    // SET UP THE Theater Pages
+    //
+    // ========================================================
+    var TheaterBlock = Marionette.ItemView.extend({
+        template: templates.showtimeTheater,
+        tagName: 'li',
+        className: 'theater timeline',
+        ui: {
+            popup: '.tickets-popup'
+        },
+        events: {
+            'click':'clicked',
+            'click .get-tickets' : 'getClicked'
+        },
+        closePopup: function(evt) {
+            this.ui.popup.fadeOut('fast');
+            // $('body').off( evt );
+        },
+        clicked: function() {
+            this.$el.addClass('active').siblings().removeClass('active');
+            this.trigger('theater:clicked', this.model);
+            this.model.attributes.selected = true;
+        },
+        getClicked: function(){
+            var popup = this.$el.find('.tickets-popup');
+            this.trigger('popupClose');
+            popup.fadeIn('fast');
+            $('body').one( "mousedown", _.bind(this.closePopup, this));
+
+        },
+        templateHelpers: {
+
+            getShowtimeURL: function(showtime_object, show_time) {
+                // FORMAT:  http://www.fandango.com/redirect.aspx?mid=157231&tid=AASUR&dte=0&date=2014-8-26+19:10
+                var today           = new Date();
+                var military        = new Date(Date.parse('11/11/11 '+ show_time));
+                var date_string     = today.getFullYear() + '-' + today.getMonth() + '-' + today.getDate() + '+' + military.getHours() + ':' + military.getMinutes();
+                return 'https://www.fandango.com/redirect.aspx?mid=' + showtime_object.fandango_id + '&tid=' + showtime_object.aa_code + '&dte=0&date=' + date_string;
+            },
+            elapsedPercent: function(show_date) {
+                show_date       = moment(show_date, "YYYY-MM-DD");
+                var today           = new Date();
+                if (show_date.isAfter(today)){
+                     return 0;
+                }
+
+                var start_time      = new Date(today.getTime());
+                var end_time        = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+                var elapsed_time    = 100 - (((end_time - start_time) / (1000 * 60 * 60 * 16)) * 95);
+                return elapsed_time - 8;
+            },
+            timePercent: function(show_time) {
+                var today           = new Date();
+                //var military        = new Date(Date.parse('11/11/11 '+ show_time));
+                //var start_time      = new Date(today.getFullYear(), today.getMonth(), today.getDate(), military.getHours(), military.getMinutes());
+                //var end_time        = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+                //var elapsed_time    = 100 - (((end_time - start_time) / (1000 * 60 * 60 * 16)) * 95);
+                //return elapsed_time - 8;
+
+				var year = today.getFullYear();
+				var month = today.getMonth()+1;
+				var day = today.getDate();
+				var day_plus = day + 1;
+                var show_day = day;
+                var hour = parseInt(show_time.split(':')[0], 10);
+                if (show_time.indexOf('AM') > -1 && (hour == 12 || hour < 9)){
+                    show_day += 1;
+                }
+
+				var start_time        = new Date(Date.parse(year+'/'+month+'/'+day+' '+ '07:00 AM'));
+				var end_time        = new Date(Date.parse(year+'/'+month+'/'+day_plus+' '+ '06:59 AM'));
+				var today_time        = new Date(Date.parse(year+'/'+month+'/'+show_day+' '+ show_time));
+				var x = today_time.getTime() - start_time.getTime();
+				var y = end_time.getTime() - start_time.getTime();
+				var percent = (x / y) * 100;
+				return percent;
+            }
+        },
+        initialize: function(options) {
+            if (this.model) {
+                this.model.set('childIndex', options.childIndex);
+                if(!this.model.ticket_url) this.model.set('ticket_url', null);
+
+                this.currentOffset = 0;
+                this.offsetMinutes = 60;
+                this.maxOffsets = 2;
+                this.prevTime = '0:0';
+
+                _.each(this.model.attributes.now_showing[0].times, function(showTime, index) {
+                    if (index > 0) {
+                        var currentTimeArr = showTime.time.replace('12:','0:').split(':');
+                        var prevTimeArr = this.prevTime.replace('12:','0:').split(':');
+                        var currentTime = parseInt(currentTimeArr[0])*60 + parseInt(currentTimeArr[1]) + (currentTimeArr[1].indexOf('PM') > -1 ? 720 : 0)
+                        var prevTime = parseInt(prevTimeArr[0])*60 + parseInt(prevTimeArr[1]) + (prevTimeArr[1].indexOf('PM') > -1 ? 720 : 0);
+                        if (currentTime - prevTime < this.offsetMinutes) {
+                            this.currentOffset += 1;
+                        }
+                        else {
+                            this.currentOffset = 0;
+                        }
+                        if(this.currentOffset > this.maxOffsets) {
+                            this.currentOffset = 0;
+                        }
+                    }
+                    this.prevTime = showTime.time;
+                    showTime.overlap = this.currentOffset;
+                }.bind(this));
+                this.currentOffset = 0;
+
+            }
+            
+        },
+        onRender: function() {
+            if(!this.model.ticket_url) this.model.set('ticket_url', null);
+        },
+        onBeforeDestroy: function() {
+            this.$el.fadeOut();
+        }
+    });
+
+    // ========================================================
+    //
+    // SET UP THE Pager Dots
+    //
+    // ========================================================
+    var PagerBlock = Marionette.ItemView.extend({
+        template: templates.showtimeDots,
+        tagName: 'li',
+        events: {
+            "click a": "clicked"
+        },
+        clicked: function(event) {
+            if (event){ event.preventDefault(); }
+            this.trigger('pager:clicked', this.model);
+        },
+        initialize: function(options) {
+            if (this.model){
+                this.model.set('childIndex', options.childIndex);
+            }
+        },
+        templateHelpers: {
+            isActive: function() {
+                var rtn = '';
+                if (this.selected){
+                    rtn = 'active';
+                }
+                return rtn;
+            }
+        },
+        ui: {
+            link: 'a'
+        },
+        modelEvents: {
+            "change:selected":"selectedChanged"
+        },
+        selectedChanged: function() {
+            if (this.model.get('selected')) {
+                this.ui.link.addClass('active');
+            }
+            else {
+                this.ui.link.removeClass('active');
+            }
+        }
+    });
+
+    // ========================================================
+    //
+    // SET UP THE Pager
+    //
+    // ========================================================
+    var ShowtimePager = Marionette.CompositeView.extend({
+        template: templates.showtimePager,
+        itemView: PagerBlock,
+        itemViewContainer: "#page-dots",
+        itemViewOptions: function(model, index) {
+            return {
+                childIndex: index
+            };
+        },
+        // templateHelpers: {},
+        initialize: function() {
+            this.on('itemview:pager:clicked', _.bind(this.setPager, this));
+        },
+        events:{
+            "click .prev_button" : "prevClick",
+            "click .next_button" : "nextClick"
+            // ,
+            // "itemview:pager:clicked" : "setPager"
+        },
+        ui: {
+            prev_button: ".prev_button",
+            next_button: ".next_button"
+        },
+        prevClick: function(evt){
+            evt.preventDefault();
+            // this.model = this.collection.prev(this.model);
+            this.trigger('pager:clicked', null, this.collection.prev(this.model));
+            // this.setPager();
+        },
+        nextClick: function(evt){
+            evt.preventDefault();
+            this.trigger('pager:clicked', null, this.collection.next(this.model));
+            // this.setPager();
+        },
+        setPager: function(model){
+            //this.setActive(this.model);
+            var m_position  = model ? this.collection.indexOf(model) : this.collection.indexOf(this.model);
+            var total_pages = this.collection.length -1;
+
+            if (m_position === -1) {
+                this.model = this.collection.first();
+                m_position  = this.collection.indexOf(this.model);
+            }
+            else if (model) {
+                this.model = this.collection.at(m_position);
+            }
+
+            this.collection.each(function(mod, idx){
+                mod.set('selected', m_position==idx);
+            });
+
+            this.ui.prev_button.hide();
+            this.ui.next_button.hide();
+
+            if(total_pages){
+                if(m_position < total_pages) { this.ui.next_button.show(); }
+                if(m_position > 0) { this.ui.prev_button.show(); }
+            }
+
+        }
+        // ,
+        // onRender: function() {
+        //     console.log("SHOWTIME_PAGER has been rendered");
+        //     if(this.collection.length > 1){
+        //         this.model = this.collection.first();
+        //     }
+        //     this.setPager();
+        // }
+    });
+
+
+    // ========================================================
+    //
+    // SET UP THE Theaters
+    //
+    // ========================================================
+    var ShowtimeTheaters = Marionette.CollectionView.extend({
+        itemView: TheaterBlock,
+        className: 'page',
+        tagName: 'ol',
+        itemViewOptions: function(model, index) {
+            return {
+                childIndex: index
+            };
+        },
+        // events: {
+        //     'itemview:popupClose':'closePopups'
+        // },
+        onShow: function() {
+            this.on('itemview:popupClose', _.bind(this.closePopups, this));
+        },
+        onRender: function() {
+            this.$el.removeClass('no-showtimes');
+            if (!this.collection.length) {
+                this.trigger('theater:updated');
+                this.$el.addClass('no-showtimes');
+                this.$el.html('<li class="message"><h3>'+this.templateHelpers.localized('no-showtimes')+'</h3></li>');
+            }
+            else if (this.$el.find('.message').length){
+                this.$el.find('.message').remove();
+            }
+        },
+        closePopups: function() {
+            this.children.each(function(view){
+                view.closePopup();
+            });
+        }
+    });
+
+    // ========================================================
+    //
+    // SET UP THE Header
+    //
+    // ========================================================
+    var ShowtimeHead = Marionette.CompositeView.extend({
+        template: templates.showtimeHead,
+        className: 'container',
+        itemView: CityItem,
+        itemViewContainer: '#city-list',
+        initialize: function() {
+            if (this.collection){
+                this.collection.on('reset', _.bind(this.cityUpdated, this));
+            }
+            this.on('itemview:city:clicked', _.bind(this.setCity, this));
+        },
+        templateHelpers: {
+            dateSelect: function() {
+
+                var number_of_days = 12;
+                var date_today = new Date();
+                date_today.setHours(0, 0, 0, 0);
+
+                var date_until = new Date();
+                    date_until.setDate(date_today.getDate() + number_of_days);
+
+                var date_array = [];
+                var current_date = date_today;
+                var date_value = moment();
+                while (current_date <= date_until) {
+                    var date_block  = new Date(current_date);
+                    var date_moment = moment(date_block);
+                    var date_object = {
+                        selected: (date_block == this.selected_date),
+                        date_value: date_moment.format("YYYY-MM-DD"),
+                        date_text: days[app.locale][date_block.getDay()] + ', ' + months[app.locale][date_block.getMonth()] + ' ' + date_block.getDate()
+                    };
+                    current_date.setDate(current_date.getDate() + 1);
+                    date_array.push(date_object);
+                }
+                return date_array;
+            },
+            runTime: function(){
+                return this.run_time;
+            }
+        },
+        events:{
+            "click #zip_input_submit":  "doSearch",
+            "keyup #zip_input":         "keyupZip",
+            "keydown #zip_input":       "keydownZip",
+            "blur #zip_input":          "blurZip",
+            "change #tms_id_select":    "upTMS",
+            "change #date_select":      "upDate",
+            "itemview:city:clicked":    "setCity",
+            "click #zip_input_error":   "hideError"
+        },
+        ui: {
+            title: "#tms_title",
+            locationText: "#zip_input",
+            cityList: "#city-list",
+            error: "#zip_input_error",
+            tmsSelect: "#tms_id_select"
+        },
+        hideError: function() {
+            this.ui.error.removeClass('visible');
+        },
+        showError: function() {
+            this.ui.error.addClass('visible');
+        },
+        blurZip: function(e) {
+            this.ui.cityList.removeClass('active');
+        },
+        keydownZip: function(e){
+            if(e.keyCode === 13){
+                e.stopPropagation();
+                e.preventDefault();
+                if (this.ui.cityList.hasClass('active')){
+                    if (this.cityModel){
+                        this.setCity();
+                    }
+                    else {
+                        if (app.isDev){
+                            console.log("this should not happen");
+                        }
+                    }
+                }
+                else {
+                    if (this.validatePostalCode(e.target.value)) {
+                        this.zip = e.target.value;
+                        this.doSearch();
+                    }
+                    else if (e.target.value.length >= 2){
+                        this.trigger('city:request', e.target.value);
+                    }
+                }
+            }
+            else if (e.keyCode === 38 || e.keyCode === 40 ) {
+                e.stopPropagation();
+                e.preventDefault();
+                if (e.keyCode === 38 || e.keyCode === 37) {
+                    this.prev();
+                }
+                else {
+                    this.next();
+                }
+            }
+        },
+        keyupZip : function(e){
+            this.hideError();
+            // if (e.keyCode === 8 || e.keyCode === 46) {
+            //     this.hideError();
+            // }
+            // If key pressed is a letter, space, hyphen, backspace, or delete
+            if((e.keyCode >= 65 && e.keyCode <= 90) || e.keyCode === 32 || e.keyCode === 189 || e.keyCode === 8 || e.keyCode === 46) {
+                var v = e.target.value;
+                if(this.validateCityName(v)) {
+                    if(v.length >= 2){
+                        this.trigger('city:request', v);
+                    }
+                    else {
+                        // this.$el.find('#city-list').removeClass('active');
+                        this.ui.cityList.removeClass('active');
+                    }
+                }
+            }
+            else {
+                this.zip = e.target.value;
+            }
+        },
+        validateCityName: function(v){
+            return /^[a-zA-Z\s-]+$/.test(v);
+        },
+        validatePostalCode: function(v){
+            if (app.region === 'ca') {
+                return /^[a-zA-Z0-9]{3}\s?[a-zA-Z0-9]{3}$/.test(v);
+            }
+            if (app.region === 'us') {
+                return /(^\d{5}$)|(^\d{5}-\d{4}$)/.test(v);
+            }
+            return false;
+        },
+        validateLocation: function() {
+            var rtn = false;
+            var validPostal = this.validatePostalCode(this.zip);
+            if (validPostal) {
+                this.city = null;
+                rtn = true;
+            }
+            else if (!validPostal && this.city){
+                if(this.city.cityname == this.ui.locationText.val().trim() || (!this.ui.locationText.val() && this.city.long && this.city.lat)) {
+                    this.zip = '';
+                    rtn = true;
+                }
+            }
+            return rtn;
+        },
+        toTitleCase: function (str) {
+            return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+        },
+        upTMS : function(event){
+            this.options.tms_id = event.target.value;
+
+            this.model.set('name', this.model.get('showtimes')[event.target.selectedIndex].name);
+            this.ui.title.text(this.model.get('name'));
+            this.doSearch();
+        },
+        upDate : function(event){
+            this.show_date = event.target.value;
+            this.doSearch();
+        },
+        doSearch: function() {
+            if (!this.validateLocation()) {
+                this.showError();
+            }
+            else {
+                this.storeLocation();
+                this.trigger('showtimes:update', this.options.tms_id, this.zip, this.show_date, this.city);
+            }
+        },
+        storeLocation: function() {
+            if (this.zip) {
+                Cookies.set('stzip', this.zip, { expires: 7, path: '/' });
+            }
+            else if (this.city) {
+                if (this.city.city) {
+                    Cookies.set('stcityname', this.city.cityname, { expires: 7, path: '/' });
+                    Cookies.set('stcity', this.city.city, { expires: 7, path: '/' });
+                    Cookies.set('ststate', this.city.state, { expires: 7, path: '/' });
+                }
+                if (this.city.lat){
+                    Cookies.set('stlat', this.city.lat, { expires: 7, path: '/' });
+                    Cookies.set('stlong', this.city.long, { expires: 7, path: '/' });
+                }
+            }
+            else {
+                this.zip    = null;
+                this.city   = null;
+            }
+        },
+        getLocation: function(coords) {
+            // var coords = null;
+            // var self = this;
+            if (Cookies.get('stcity')){
+                this.city = {
+                    lat: Cookies.get('stlat'),
+                    long: Cookies.get('stlong'),
+                    cityname: Cookies.get('stcityname'),
+                    city: Cookies.get('stcity'),
+                    state: Cookies.get('ststate')
+                };
+                if (this.city.cityname) {
+                    this.ui.locationText.val(this.city.cityname);
+                }
+                else if (this.city.city && this.city.state) {
+                    this.ui.locationText.val(this.toTitleCase(this.city.city)+", "+this.city.state.toUpperCase());
+                }
+                // coords = {latitude: this.city.lat, longitude: this.city.longitude};
+                // this.trigger('showtimes:update', this.tms_id, this.zip, this.show_date, this.city);
+            }
+            else if (Cookies.get('stzip')) {
+                this.zip = Cookies.get('stzip');
+                this.ui.locationText.val(this.zip);
+                // this.trigger('showtimes:update', this.tms_id, this.zip, this.show_date, this.city);
+            }
+            else if (coords) {
+                this.city = {
+                    lat: coords.latitude,
+                    long: coords.longitude
+                };
+            }
+            // else if(navigator.geolocation){
+            //     navigator.geolocation.getCurrentPosition(function(position){
+            //         self.city  = {
+            //             lat: position.coords.latituge,
+            //             long: position.coords.longitude,
+            //             cityname: '',
+            //             city: '',
+            //             state: '',
+            //         }
+            //         self.trigger('showtimes:update', self.tms_id, self.zip, self.show_date, self.city);
+            //         self.trigger('location:loaded', position.coords)
+            //     });
+            // }
+            // return coords;
+        },
+        setPostalCode: function(code){
+            this.zip = code;
+            this.storeLocation();
+            this.ui.locationText.val(this.zip);
+        },
+        onRender: function(){
+
+            this.show_date  = this.model.get('selected_date');
+            this.templateHelpers.selected_date  = this.show_date;
+            this.templateHelpers.run_time       = (this.model.run_time);
+            this.zip        = null;
+            // this.tms_id     = this.model.get('tms_id');
+            // this.ui.tmsSelect.val(this.tms_id);
+
+        },
+        hideCity: function() {
+            $('#city-list').removeClass('active');
+        },
+        cityUpdated: function() {
+            if(this.collection.length > 0){
+                this.cityModel = this.collection.first();
+                this.cityModel.set('active', true);
+                this.$el.find('#city-list').addClass('active');
+                $(document.body).one('click', this.hideCity.bind(this));
+            }
+            else {
+                this.cityModel = null;
+                this.$el.find('#city-list').removeClass('active');
+                $(document.body).off('click', this.hideCity);
+            }
+        },
+        setCity: function(iv, model) {
+            if (!model){
+                model = this.cityModel;
+            }
+            var city = this.toTitleCase(model.get('city'))+", "+model.get('state').toUpperCase();
+            this.$el.find('#zip_input').val(city);
+
+            this.city = {
+                lat: model.get('latitude'),
+                long: model.get('longitude'),
+                cityname: city,
+                city: this.toTitleCase(model.get('city')),
+                state: model.get('state')
+            };
+            this.collection.reset();
+            this.doSearch();
+        },
+        activate: function(model) {
+            model.set('active', true);
+        },
+        deactivate: function(model) {
+            model.set('active', false);
+        },
+        next: function() {
+            if (this.cityModel) {
+                this.deactivate(this.cityModel);
+                this.cityModel= this.collection.next(this.cityModel);
+                this.activate(this.cityModel);
+            }
+        },
+        prev: function() {
+            if (this.cityModel) {
+                this.deactivate(this.cityModel);
+                this.cityModel = this.collection.prev(this.cityModel);
+                this.activate(this.cityModel);
+            }
+        },
+        onClose: function(){
+        }
+    });
+
+
+    return Marionette.Layout.extend({
+        regions: {
+            showTimeHead: "#showtime-head",
+            showTimeMap: '#map',
+            showTimeTheaters: '#listing',
+            showTimePager: '#pager'
+        },
+        template: templates.showtimeLayout,
+        // modelEvents: {
+        //     "change:pages":"pagerChange"
+        // },
+        initialize: function() {
+            _.bindAll(this);
+            if (this.model) {
+                var pages = this.model.get("pages");
+                pages.on('change', this.pagerChange.bind(this));
+            }
+        },
+        closeOverlay: function() {
+            this.trigger('close:clicked');
+        },
+        pagerChange: function() {
+            // console.log('Pager has been changed');
+            this.pager.setPager();
+        },
+        onShow: function() {
+            _.bindAll();
+            this.isShown = true;
+
+            // Show the showtimes header
+            this.head                   = new ShowtimeHead({model:this.model.get('info'), collection:this.model.get('city'), tms_id:this.tms});
+            this.theaters               = new ShowtimeTheaters({collection:this.model.get('current_page')});
+
+            this.pager                  = new ShowtimePager({collection:this.model.get('pages')});
+
+            var self = this;
+            var map_lang = (Cookies.get('trailers_language') || navigator.language || 'en');
+            // $.when( loadGoogleMaps( 3, null, map_lang, true ) )
+            // .then(function() {
+
+
+
+                self.map                    = new ShowtimeMap({collection:self.model.get('current_page')});
+
+                self.map.on('mapmarker:clicked', function(model) {
+                    $.each(self.theaters.collection.models, function(i, m){
+                        if (m.id === model.id){
+                            self.theaters.children.findByIndex(i).clicked();
+                        }
+                    });
+                });
+
+                self.theaters.on('itemview:theater:clicked', function(childView, model){
+                    self.map.selectTheater(model);
+                });
+
+                self.head.on('location:loaded', function(coord) {
+                    if (coord.latitude){
+                        self.map.updateCoords(coord);
+                    }
+                });
+
+                if (self.coords){
+                    self.map.updateCoords(self.coords, _.bind(self.head.setPostalCode, self.head));
+                }
+                self.showTimeMap.show(self.map);
+            // });
+
+            this.showTimeHead.show(this.head);
+            this.showTimeTheaters.show(this.theaters);
+            this.showTimePager.show(this.pager);
+            this.head.getLocation(this.coords);
+
+            this.$el.find('.close-btn').on('click', function(){
+                self.closeOverlay();
+            });
+        },
+        onRender: function(){
+
+        },
+        onClose: function(){
+            this.isShown = false;
+        }
+    });
+});

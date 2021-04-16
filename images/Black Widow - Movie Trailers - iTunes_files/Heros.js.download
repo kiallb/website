@@ -1,0 +1,71 @@
+/*global define */
+
+define([
+	'marionette',
+	'templates/templates'
+], function (Marionette, templates) {
+	'use strict';
+
+	return Marionette.ItemView.extend({
+		template: templates.heros,
+		templateHelpers:{
+			isRotating: function(){
+				return !!(this.oldModel);
+			},
+			previousImage: function(){
+				return (this.oldModel) ? this.oldModel.attributes.imageurl : null;
+			}
+		},
+		initialize: function(){
+			_.bindAll(this);
+			this.heroQueue 					= 0;
+			this.heroCount					= this.collection.models.length;
+			this.collection.models 			= (this.heroCount-1) ? this.shuffle(this.collection.models) : this.collection.models;
+			this.model 						= this.collection.models[this.heroQueue];
+
+			if(this.heroCount>1){
+				this.startRotation();
+				this.model.on('change', this.modelChanged.bind(this));
+			}
+		},
+		rotater: function(){
+			this.heroQueue								= (this.heroQueue < this.heroCount-1) ? this.heroQueue+1 : 0;
+			this.templateHelpers.oldModel 				= this.model;
+			this.model 									= this.collection.models[this.heroQueue];
+			this.modelChanged();
+		},
+		pauseRotation: function(){
+			if(this.interval) window.clearInterval(this.interval);
+		},
+		startRotation: function(){
+			if(this.heroCount>1){
+				this.interval = setInterval(this.rotater.bind(this), 7000);
+			}
+		},
+		modelChanged: function(){
+			this.render();
+		},
+		onRender: function(){
+			this.heroFade =	$('.hero-fade');
+			if(this.heroFade.length){
+				this.heroFade.show().fadeOut('slow');
+			}
+		},
+		shuffle: function(array){
+			var counter = array.length, temp, index;
+
+	    // While there are elements in the array
+	    while (counter--) {
+	        // Pick a random index
+	        index = (Math.random() * counter) | 0;
+
+	        // And swap the last element with it
+	        temp = array[counter];
+	        array[counter] = array[index];
+	        array[index] = temp;
+	    }
+
+	    return array;
+		}
+	});
+});

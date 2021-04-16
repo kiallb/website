@@ -1,0 +1,60 @@
+define([
+    "marionette"],
+    function(Marionette){
+
+
+        return Marionette.Region.extend({
+            el: "#overlay",
+            initialize: function(options){
+                if(! $('#overlay-screen').length){
+                    $('body').append('<div id="overlay-screen"></div>');
+                }
+                if(! $('#overlay').length){
+                    $('body').append('<div id="overlay"></div>');
+                }
+
+                this.overlayScreen  = $('#overlay-screen');
+            },
+            open: function(view){
+                var overlay = this;
+
+                this.overlayScreen.one('click', function(){
+                    overlay.overlayClicked();
+                });
+                $(document).on('keydown', {view: overlay}, overlay.keyPressed);
+
+                this.$el.css('opacity', 0);
+                this.$el.html(view.el);
+                this.overlayScreen.fadeIn("fast");
+                this.$el.animate(
+                    { opacity: 1 },
+                    { queue: false, duration: 'slow' }
+                    );
+            },
+            isFullscreen: function(){
+                return (document.fullScreen ||
+                    document.webkitIsFullScreen ||
+                    document.webkitFullScreen ||
+                    document.mozFullScreen ||
+                    document.msFullScreen ) ? true : false;
+            },
+            overlayClicked: function(){
+                this.trigger('overlay:clicked');
+            },
+            keyPressed: function(e){
+
+                 if(e.keyCode == 27 && !e.data.view.isFullscreen() ) {
+                    e.data.view.trigger('overlay:clicked');
+                }
+            },
+            hideModal: function(view){
+                var overlay = this;
+                $(document).off('keydown', overlay.keyPressed);
+
+                this.trigger('overlay:hide');
+                this.currentView.close();
+                this.overlayScreen.fadeOut();
+            }
+        });
+
+});

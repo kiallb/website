@@ -1,0 +1,1240 @@
+.scroll-container .scroll-content, #main-header, #panel-tabs ul, #content-panels dl, #content-panels .content-section, #panel-gallery, #panel-reviews .rating-container, #overlay-video .video-player .video-poster .poster-block, .showtimesmain .legend, .selfclear, .clearfix { zoom: 1; }
+.scroll-container .scroll-content:after, #main-header:after, #panel-tabs ul:after, #content-panels dl:after, #content-panels .content-section:after, #panel-gallery:after, #panel-reviews .rating-container:after, #overlay-video .video-player .video-poster .poster-block:after, .showtimesmain .legend:after, .selfclear:after, .clearfix:after { content: '.'; display: block; height: 0; clear: both; visibility: hidden; }
+
+/*! normalize.css v2.1.3 | MIT License | git.io/normalize */
+article, aside, details, figcaption, figure, footer, header, hgroup, main, nav, section, summary { display: block; }
+
+audio, canvas, video { display: inline-block; }
+
+audio:not([controls]) { display: none; height: 0; }
+
+[hidden], template { display: none; }
+
+html { font-family: sans-serif; /* 1 */ -ms-text-size-adjust: 100%; /* 2 */ -webkit-text-size-adjust: 100%; /* 2 */ }
+
+body { margin: 0; }
+
+a { background: transparent; }
+
+a:focus { outline: thin dotted; }
+
+a:active, a:hover { outline: 0; }
+
+h1 { font-size: 2em; margin: 0.67em 0; }
+
+abbr[title] { border-bottom: 1px dotted; }
+
+b, strong { font-weight: bold; }
+
+dfn { font-style: italic; }
+
+hr { -moz-box-sizing: content-box; box-sizing: content-box; height: 0; }
+
+mark { background: #ff0; color: #000; }
+
+code, kbd, pre, samp { font-family: monospace, serif; font-size: 1em; }
+
+pre { white-space: pre-wrap; }
+
+q { quotes: "\201C" "\201D" "\2018" "\2019"; }
+
+small { font-size: 80%; }
+
+sub, sup { font-size: 75%; line-height: 0; position: relative; vertical-align: baseline; }
+
+sup { top: -0.5em; }
+
+sub { bottom: -0.25em; }
+
+img { border: 0; }
+
+svg:not(:root) { overflow: hidden; }
+
+figure { margin: 0; }
+
+fieldset { border: 1px solid #c0c0c0; margin: 0 2px; padding: 0.35em 0.625em 0.75em; }
+
+legend { border: 0; padding: 0; }
+
+button, input, select, textarea { font-family: inherit; font-size: 100%; margin: 0; }
+
+button, input { line-height: normal; }
+
+button, select { text-transform: none; }
+
+button, html input[type="button"], input[type="reset"], input[type="submit"] { -webkit-appearance: button; cursor: pointer; }
+
+button[disabled], html input[disabled] { cursor: default; }
+
+input[type="checkbox"], input[type="radio"] { box-sizing: border-box; padding: 0; }
+
+input[type="search"] { -webkit-appearance: textfield; -moz-box-sizing: content-box; -webkit-box-sizing: content-box; box-sizing: content-box; }
+
+input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; }
+
+button::-moz-focus-inner, input::-moz-focus-inner { border: 0; padding: 0; }
+
+textarea { overflow: auto; vertical-align: top; }
+
+table { border-collapse: collapse; border-spacing: 0; }
+
+body { background-image: none !important; height: 100%; opacity: 0; }
+body.body-white { background-color: #FFFFFF; }
+body.body-black { background-color: #000000; }
+body.visible { opacity: 1; }
+body .redirect-message { text-align: center; }
+
+* { outline: none; _noFocusLine: expression(this.hideFocus=true); }
+
+.noSelect { user-select: none; -o-user-select: none; -moz-user-select: none; -khtml-user-select: none; -webkit-user-select: none; }
+
+/* TYPE */
+body { font: 12px/18px helvetica-neue, helvetica, arial, sans-serif; background-color: #fff; color: #333; }
+
+a { color: #08c; }
+
+a:link, a:active { text-decoration: none; }
+
+#productheader #productnav a:hover, #globalfooter a:hover, .main a:hover, #promofooter a:hover { text-decoration: underline; }
+
+a.more, em.more { white-space: nowrap; padding-right: 10px; background: url(https://trailers.apple.com/global/images/morearrow_08c.gif) no-repeat 100% 50%; zoom: 1; }
+
+a.block { display: block; width: 100%; overflow: hidden; }
+
+a.external { white-space: nowrap; padding-right: 15px; background: url(https://trailers.apple.com/global/images/external10x10.gif) no-repeat 100% 49%; zoom: 1; }
+
+a.read-more { display: none; float: right; background: no-repeat 100% 55%; padding-right: 11px; outline: none; margin-bottom: 1em; }
+
+h1, h2, h3, h4, h5, h6 { color: #000; }
+
+h1 { margin-bottom: .3em; font-size: 3em; line-height: 1.4; font-weight: normal; }
+
+h2 { margin-bottom: .3em; font-size: 2em; line-height: 1.4; font-weight: normal; }
+
+h3 { margin-bottom: .3em; font-size: 1.3em; line-height: 1.4; }
+
+h4 { font-size: 1em; line-height: 1.5; }
+
+.replaced { display: block; width: 1px; height: 1px; outline: none; overflow: hidden; text-indent: -9999px; }
+
+p { margin-bottom: 1.5em; }
+
+ul, ol { list-style: none outside; padding: 0; margin: 0; }
+
+ol.decimal, ul.square, ul.circle { margin-left: 2em; }
+
+ol.decimal { list-style: decimal; }
+
+ul.square { list-style: square outside; }
+
+ul.circle { list-style: circle outside; }
+
+ol.sosumi { list-style: decimal; margin-left: 0; padding-left: 2em; }
+
+body.body-black .scroll-track { display: block; height: 10px; position: relative; border: 1px solid; border-radius: 5px; background: #1a1a1a; border-color: #373737; }
+body.body-black .scroll-handle { position: absolute; cursor: pointer; display: block; width: 10%; height: 10px; border-radius: 5px; background: #000; border-top: none; border-left: 1px solid #373737; border-bottom: none; border-right: 1px solid #373737; }
+
+body.body-white .scroll-track { position: relative; display: block; height: 10px; border: 1px solid; border-radius: 5px; background: #f2f2f2; border-color: #dbdbdb; }
+body.body-white .scroll-handle { position: absolute; cursor: pointer; display: block; width: 10%; height: 10px; border-radius: 5px; background: #bfbfbf; border-top: 1px solid #bfbfbf; border-left: 1px solid #bfbfbf; border-bottom: 1px solid #bfbfbf; border-right: 1px solid #bfbfbf; }
+
+.border-bottom { border-bottom: 1px solid #666; }
+body.body-white .border-bottom { border-bottom: 1px solid #BFBFBF; }
+
+.main #share li .link-arrow, .link-arrow { width: auto; padding: 0 1em 0 0; font-size: 0.9em; text-decoration: none !important; text-indent: 0; color: #CCC; background: url(https://trailers.apple.com/trailers/global/v4/images/arrow_more_2x.png) right center no-repeat; background-size: 6px 10px; }
+body.body-white .main #share li .link-arrow, body.body-white .link-arrow { color: #6d6d6d; background: url(https://trailers.apple.com/trailers/global/v4/images/arrow_more_dark_2x.png) right center no-repeat; background-size: 6px 10px; }
+.main #share li .link-arrow:hover, .main #share li .link-arrow:active, .link-arrow:hover, .link-arrow:active { color: #FFF; }
+body.body-white .main #share li .link-arrow:hover, body.body-white .main #share li .link-arrow:active, body.body-white .link-arrow:hover, body.body-white .link-arrow:active { color: #2478ae; }
+
+.arrow { position: absolute; top: 50%; margin: -30px 0; width: 33px; height: 61px; text-indent: -9999px; cursor: pointer; -webkit-user-select: none; background-repeat: no-repeat; }
+.arrow.active { visibility: visible; }
+.arrow.disabled { opacity: 0; }
+
+.arrow.left { left: 10px; background-image: url(https://trailers.apple.com/trailers/global/v4/images/paddle_sprite_2x.png); background-size: 700px 62px; background-position: -100px 0; }
+.arrow.left:hover { background-position: -50px 0; }
+.arrow.left:active { background-position: 0 0; }
+.arrow.left.disabled:hover, .arrow.left.disabled:active { background-position: -100px 0; }
+
+.arrow.right { right: 10px; background-image: url(https://trailers.apple.com/trailers/global/v4/images/paddle_sprite_2x.png); background-size: 700px 62px; background-position: -550px 0; }
+.arrow.right:hover { background-position: -600px 0; }
+.arrow.right:active { background-position: -650px 0; }
+
+.arrow.disabled { display: none; }
+
+.icon { font-family: 'corecontrols'; speak: none; font-style: normal; font-weight: normal; font-variant: normal; text-transform: none; line-height: 1; /* Better Font Rendering =========== */ -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; display: inline-block; }
+
+.icon { background: url(/trailers/global/v4/images/player_controls.svg) 0 0 no-repeat; background-size: 300px 300px; background-repeat: none; position: relative; }
+
+.icon-size-up { width: 26px; height: 16px; background-position: 1px -72px; }
+.icon-size-up:hover { background-position: -27px -72px; }
+
+.icon-sd { width: 26px; height: 16px; margin-top: 6px; position: relative; /*background-position: 1px -26px;*/ background-position: -27px -26px; }
+.icon-sd:hover { opacity: 0.8; /*background-position: -27px -26px;*/ }
+
+.icon-hd { width: 26px; height: 16px; margin-top: 6px; position: relative; /*background-position: 1px 0;*/ background-position: -27px 0; }
+.icon-hd:hover { opacity: 0.8; /*background-position: -27px 0;*/ }
+
+.icon-play { width: 32px; height: 27px; /*background-position: -36px -108px;*/ /*background-position: 0 -108px;*/ background-size: 200px 200px; background-position: -20px -72px; top: 2px; }
+.icon-play:hover { opacity: 0.8; }
+.ie .icon-play { width: 29px; background-position: -27px -71px; left: 3px; top: 0px; }
+
+.icon-pause { width: 32px; height: 27px; /*background-position: -36px -208px;*/ /*background-position: 0 -208px;*/ background-size: 200px 200px; background-position: -20px -137px; top: -2px; }
+.icon-pause:hover { opacity: 0.8; }
+.ie .icon-pause { width: 29px; background-position: -30px -137px; left: 5px; }
+
+.icon-forward { width: 32px; height: 32px; background-position: -36px -140px; /*background-position: 0 -140px;*/ }
+.icon-forward:hover { opacity: 0.8; background-position: 0 -968px; background-position: -36px -140px; }
+
+.icon-exit-fs { background-position: 0 -1012px; height: 22px; width: 27px; background-image: url(https://trailers.apple.com/trailers/global/v4/images/controller_settings_controls_2x.png); background-repeat: no-repeat; background-size: 27px 1078px; /* width:26px; height:20px; background-position: -27px -34px; background-position: 1px -34px;*/ }
+.icon-exit-fs:hover { opacity: 0.8; }
+
+.icon-enter-fs { background-position: 0 -968px; height: 22px; width: 27px; background-image: url(https://trailers.apple.com/trailers/global/v4/images/controller_settings_controls_2x.png); background-repeat: no-repeat; background-size: 27px 1078px; position: relative; top: 3px; /*background-position: 1px -54px;*/ }
+.icon-enter-fs:hover { opacity: 0.8; background-position: 0 -990px; /*background-position: -27px -54px;*/ }
+.ie9 .icon-enter-fs { display: none; }
+
+.icon-reverse { width: 32px; height: 32px; background-position: -36px -176px; /*background-position: 0 -176px;*/ }
+.icon-reverse:hover { opacity: 0.8; /*background-position: -36px -176px;*/ }
+
+.icon-airplay { width: 26px; height: 16px; background-position: -27px -280px; }
+.icon-airplay:hover { opacity: 0.8; }
+
+.icon-play-circle { width: 32px; height: 32px; background-position: 0 -246px; }
+.icon-play-circle:hover, .poster-title:hover .icon-play-circle { background-position: -36px -246px; }
+
+.icon-settings { width: 26px; height: 16px; }
+
+.icon-view-size { width: 26px; height: 16px; background-position: 1px -72px; }
+.icon-view-size:hover { background-position: -27px -72px; }
+
+.icon-pip { background-image: url("/trailers/global/v4/images/pip_in_white.svg"); background-size: 21px 21px; height: 18px; width: 22px; }
+.icon-pip:hover { opacity: 0.8; }
+
+.icon-pip.active { background-image: url("/trailers/global/v4/images/pip_out_white.svg"); }
+.icon-pip.active:hover { opacity: 0.8; }
+
+#arena { position: relative; width: 1024px; margin: 0 auto; display: block; height: 668px; }
+
+/* Hero Header */
+#header-wrapper { min-width: 1024px; display: block; margin-bottom: 40px; }
+.ie .overlaid #header-wrapper { opacity: 0.1; }
+
+#backgrounds { height: 100%; }
+#backgrounds .hero { display: block; height: 652px; position: absolute; top: 0; left: 0; right: 0; background-repeat: no-repeat; background-position: center -94px; background-size: auto 652px; }
+#backgrounds .hero-fade { display: block; height: 652px; position: absolute; top: 0; left: 0; right: 0; background-repeat: no-repeat; background-position: center -94px; background-size: auto 652px; z-index: 150; }
+#backgrounds .replaced { position: absolute; top: -100%; }
+
+#hero { position: relative; margin: 0 auto; width: 1024px; height: 515px; min-height: 515px; }
+#hero h1.replaced { margin: 0; }
+#hero .breadcrumbs { display: none; position: absolute; left: 112px; top: 10px; z-index: 1; color: #fff; font: 14px/15px Helvetica; }
+#hero .breadcrumbs a { float: left; margin-right: 8px; padding-right: 15px; color: #fff; text-decoration: none; background: url(https://trailers.apple.com/trailers/global/v4/images/breadcrumb_arrow.png) no-repeat 100% 50%; background-size: 7px 10px; }
+#hero .breadcrumbs a:last-child { background: none; }
+
+.hero-background { position: absolute; width: 100%; height: 668px; background-repeat: no-repeat; background-position: center -94px; }
+
+.hero-blur { position: absolute; bottom: -65px; left: 83px; opacity: 0.95; width: 1024px; -webkit-transition: all 0.8s ease-in-out; -moz-transition: all 0.8s ease-in-out; -o-transition: all 0.8s ease-in-out; transition: all 0.8s ease-in-out; }
+
+#hero.legacy { height: 668px; }
+#hero.legacy .hero-background { -webkit-mask: -webkit-linear-gradient(left, transparent, black 48px, black 976px, transparent); width: auto; height: 681px; top: -94px; bottom: auto; }
+#hero.legacy .hero-blur { display: none; }
+
+.hero-background.noTransition, .hero-blur.noTransition { -moz-transition: none; -webkit-transition: none; -o-transition: all 0 none; transition: none; }
+
+#static-hero { z-index: 9; }
+
+#static-tray { z-index: 9; }
+
+.scroll-container { overflow: hidden; width: 900px; margin: auto; position: relative; }
+.scroll-container .scroll-content { width: 9999em; display: block; }
+.scroll-container .scroll-content > li { float: left; width: 300px; }
+
+.thumb-strip-wrapper.scroll-content { display: block; backface-visibility: hidden; transform: translateZ(0); -webkit-font-smoothing: subpixel-antialiased; }
+.thumb-strip-wrapper.scroll-content, .thumb-strip-wrapper.center-content { display: block; margin: 0 auto; }
+.thumb-strip-wrapper .thumb-strip { margin: 0 45px; padding: 0 20px; display: block; overflow-y: hidden; overflow-x: auto; white-space: nowrap; }
+.thumb-strip-wrapper .thumb-strip > li { display: inline-block; vertical-align: baseline; zoom: 1; *display: inline; *vertical-align: auto; }
+.thumb-strip-wrapper .thumb-strip > a { display: inline-block; vertical-align: baseline; zoom: 1; *display: inline; *vertical-align: auto; }
+
+#trailers, .thumb-tray { position: absolute; bottom: 0; width: 1024px; height: 110px; z-index: 15; background: #211f20; }
+@media only screen and (device-aspect-ratio: 2 / 3), only screen and (device-aspect-ratio: 40 / 71), only screen and (device-aspect-ratio: 3 / 4) { #trailers, .thumb-tray { overflow: hidden; } }
+body.body-white #trailers, body.body-white .thumb-tray { background: #e1e1e1; }
+#trailers .fade-left, #trailers .fade-right, .thumb-tray .fade-left, .thumb-tray .fade-right { width: 100px; display: block; height: 110px; top: 0; background-color: pink; }
+#trailers .fade-left, .thumb-tray .fade-left { background-color: #211f20; background-image: -webkit-linear-gradient(right, #211f20, #000); background-image: linear-gradient(to left,#211f20, #000); position: absolute; left: -83px; }
+.body-white #trailers .fade-left, .body-white .thumb-tray .fade-left { background-color: #e1e1e1; background-image: -webkit-linear-gradient(right, #e1e1e1, #FFF); background-image: linear-gradient(to left,#e1e1e1, #FFF); }
+#trailers .fade-right, .thumb-tray .fade-right { background-color: #211f20; background-image: -webkit-linear-gradient(left, #211f20, #000); background-image: linear-gradient(to right,#211f20, #000); position: absolute; right: -83px; }
+.body-white #trailers .fade-right, .body-white .thumb-tray .fade-right { background-color: #e1e1e1; background-image: -webkit-linear-gradient(left, #e1e1e1, #FFF); background-image: linear-gradient(to right,#e1e1e1, #FFF); }
+
+#videoTray .scroll-container { width: auto; margin: 0 150px; }
+
+.trailer { float: left; display: block; width: 300px; }
+.trailer:first-child { padding-left: 0; }
+.trailer:last-child { padding-right: 0; }
+.trailer .col.left { padding: 12px 0 0; float: left; position: relative; margin-right: 10px; width: 160px; }
+.trailer .col.right { float: right; width: 116px; margin-right: 10px; }
+.trailer .col.right h3 { padding: 12px 0 5px; margin: 0; padding-bottom: 5px; font: normal 12px/18px Helvetica; color: #f9f9f9; overflow: hidden; text-overflow: ellipsis; }
+body.body-white .trailer .col.right h3 { color: #4c4c4c; }
+.trailer .col.right .list-trailer-actions { list-style-type: none; margin: 0; }
+.trailer .col.right .list-trailer-actions li { font: normal 12px/18px Helvetica; padding-bottom: 5px; color: #b2b2b2; position: relative; }
+body.body-white .trailer .col.right .list-trailer-actions li { color: #4c4c4c; }
+.trailer .col.right .list-trailer-actions li:last-child { padding-bottom: 0; }
+.trailer .col.right .list-trailer-actions li a { font-weight: 400; color: #b2b2b2; }
+body.body-white .trailer .col.right .list-trailer-actions li a { color: #4c4c4c; }
+.trailer .col.right .list-trailer-actions li a:hover { color: #f0f0f0; }
+body.body-white .trailer .col.right .list-trailer-actions li a:hover { color: #808080; }
+.trailer .col.right .list-trailer-actions li .link-play { letter-spacing: 0.1em; color: #b2b2b2; border: 1px solid #b2b2b2; background-color: transparent; padding: 0 18px; display: inline-block; vertical-align: baseline; zoom: 1; *display: inline; *vertical-align: auto; margin-right: 8px; border-radius: 4px; }
+body.body-white .trailer .col.right .list-trailer-actions li .link-play { color: #4c4c4c; }
+body.body-white .trailer .col.right .list-trailer-actions li .link-play { border-color: #575757; }
+.trailer .col.right .list-trailer-actions li .link-play:hover { border: 1px solid #f0f0f0; }
+body.body-white .trailer .col.right .list-trailer-actions li .link-play:hover { color: #808080; border: 1px solid #808080; }
+.trailer .col.right .list-trailer-actions li .link-play:active { text-shadow: none; color: #1d1d1d; background-color: #f0f0f0; border: 1px solid #f0f0f0; }
+body.body-white .trailer .col.right .list-trailer-actions li .link-play:active { color: #fff; background-color: #808080; border: 1px solid #808080; }
+.trailer .col.right .list-trailer-actions li .link-icon { line-height: 18px; height: 18px; display: inline-block; vertical-align: baseline; zoom: 1; *display: inline; *vertical-align: auto; padding-left: 22px; background: url(https://trailers.apple.com/trailers/global/v4/images/thumb_list_icons.png) no-repeat; background-size: 18px 216px; }
+.trailer .col.right .list-trailer-actions li .link-download { background-position: 0 -18px; }
+.trailer .col.right .list-trailer-actions li .link-download:hover { background-position: 0 -18px; }
+.trailer .col.right .list-trailer-actions li .link-download.active { background-position: 0 -36px; }
+body.body-white .trailer .col.right .list-trailer-actions li .link-download { background-position: 0 -54px; }
+body.body-white .trailer .col.right .list-trailer-actions li .link-download:hover { background-position: 0 -72px; }
+body.body-white .trailer .col.right .list-trailer-actions li .link-download.active { background-position: 0 -90px; }
+.trailer .col.right .list-trailer-actions li .link-language { background-position: 0 -126px; }
+.trailer .col.right .list-trailer-actions li .link-language:hover { background-position: 0 -126px; }
+.trailer .col.right .list-trailer-actions li .link-language.active { background-position: 0 -144px; }
+body.body-white .trailer .col.right .list-trailer-actions li .link-language { background-position: 0 -162px; }
+body.body-white .trailer .col.right .list-trailer-actions li .link-language:hover { background-position: 0 -180px; }
+body.body-white .trailer .col.right .list-trailer-actions li .link-language.active { background-position: 0 -198px; }
+.trailer a.thumb { width: 160px; height: 90px; display: block; overflow: hidden; position: relative; }
+.trailer a.thumb .violator { position: absolute; top: 0; right: 0; width: 41px; height: 41px; background: url(https://trailers.apple.com/trailers/global/v4/images/violator_new.png) no-repeat 100% 0; background-size: 41px 41px; }
+.trailer a.thumb .play { position: absolute; top: 0; left: 0; width: 154px; height: 84px; display: block; border: 3px solid transparent; border-radius: 3px; }
+.trailer a.thumb:hover .play { background: url(https://trailers.apple.com/trailers/global/v4/images/video_overlay.png) no-repeat center center; }
+.trailer.active .thumb .play { border: 3px solid #08c; background: none; }
+.trailer.active .thumb:hover .play { background-color: transparent; }
+
+.thumb-strip-dropdown { background: #e6e5e5; padding: 5px; display: none; z-index: 10000; }
+body.body-white .thumb-strip-dropdown { border: 1px solid #bfbfbf; background: #f5f5f5; }
+.thumb-strip-dropdown > li { padding: 0 20px 0 0; line-height: 20px; border-bottom: 1px solid #bfbfbf; display: block; }
+.thumb-strip-dropdown > li.active { background: url(https://trailers.apple.com/trailers/global/v4/images/trailer_dropdown_active.png) no-repeat center right; background-size: 7px 7px; }
+.thumb-strip-dropdown > li a { color: #000000; }
+.thumb-strip-dropdown > li a:hover { color: #2478ae; }
+.thumb-strip-dropdown > li:last-child { border-bottom: none; }
+
+.dropit-wrapper { position: absolute; z-index: 999; }
+.dropit-wrapper .thumb-strip-dropdown { display: block; }
+
+.dropdown { z-index: 20000; }
+
+.native-trailer video::-webkit-media-controls-enclosure { display: none !important; }
+.android .native-trailer video::-webkit-media-controls-enclosure { display: flex !important; }
+.native-trailer .native-clip { width: 160px; height: 90px; visibility: hidden; }
+.android .native-trailer .native-clip { visibility: visible; }
+.native-trailer .thumb { position: absolute; top: 12px; left: 0; width: 160px; height: 90px; }
+.native-trailer .thumb .play { position: absolute; top: 0; left: 0; width: 154px; height: 84px; display: block; border: 3px solid transparent; border-radius: 3px; background: url(https://trailers.apple.com/trailers/global/v4/images/video_overlay.png) no-repeat center center; }
+.native-trailer .thumb img { display: block; }
+
+#main-header { margin: 0 auto; width: 980px; box-sizing: border; z-index: 2; -webkit-transform: translate3d(0, 0, 0); }
+
+.standard-title { line-height: 28px; font-family: "Helvetica Neue", Helvetica; font-weight: 300; font-size: 25px; letter-spacing: 0.04em; color: #fff; text-rendering: optimizeLegibility; }
+
+#main-header { border-bottom: 1px solid #393939; }
+body.body-white #main-header { border-bottom: 1px solid #bfbfbf; }
+#main-header h3.title { margin: 0 0 5px 0; padding: 0; clear: both; border: none; line-height: 28px; font-family: "Helvetica Neue", Helvetica; font-weight: 300; font-size: 25px; letter-spacing: 0.04em; color: #fff; text-rendering: optimizeLegibility; }
+body.body-white #main-header h3.title { color: #333333; font-weight: 300; }
+#main-header h3.title img.rating { top: auto; }
+#main-header h3.title .movie-rating { margin-left: 8px; }
+#main-header .sub-title { position: relative; float: left; width: 53%; display: block; overflow: visible; white-space: nowrap; margin: 0; color: #ccc; }
+body.body-white #main-header .sub-title { color: #666666; }
+#main-header .sub-title > span { display: inline-block; vertical-align: baseline; zoom: 1; *display: inline; *vertical-align: auto; }
+#main-header .sub-title .film-detail span { font-size: 12px; }
+#main-header .sub-title .film-detail .spacer { padding: 0 10px; color: #808080; }
+body.body-white #main-header .sub-title .film-detail .spacer { color: #666666; }
+
+.movie-rating { display: inline-block; vertical-align: middle; width: 60px; height: 21px; background: url(/trailers/global/v4/images/movie_ratings.svg) no-repeat 0 0; background-size: 204px; text-indent: 100%; direction: ltr; overflow: hidden; opacity: 0.8; }
+
+.rating-nc17 { background-position: 0 -120px; height: 21px; }
+
+.rating-pg13 { background-position: 0 -30px; height: 21px; }
+
+.rating-pg-13 { background-position: 0 -30px; height: 21px; }
+
+.rating-pg { background-position: 0 -60px; height: 21px; }
+
+.rating-r { background-position: 0 -90px; height: 21px; }
+
+.rating-notrated, .rating-notyetrated, .rating-nr { background-position: 0 3px; height: 23px; }
+
+.rating-g { background-position: 0 -150px; height: 21px; }
+
+.rating-ca-alb-notyetrated { background-position: 0 3px; height: 27px; }
+
+.rating-ca-alb-notrated { background-position: 0 3px; height: 27px; }
+
+.rating-ca-brc-notrated { background-position: 0 3px; height: 27px; }
+
+.rating-ca-brc-notyetrated { background-position: 0 3px; height: 27px; }
+
+.rating-ca-man-notyetrated { background-position: 0 3px; height: 27px; }
+
+.rating-ca-man-notrated { background-position: 0 3px; height: 27px; }
+
+.rating-ca-mar-notyetrated { background-position: 0 3px; height: 27px; }
+
+.rating-ca-mar-notrated { background-position: 0 3px; height: 27px; }
+
+.rating-ca-ont-notrated { background-position: 0 3px; height: 27px; }
+
+.rating-ca-ont-notyetrated { background-position: 0 3px; height: 27px; }
+
+.rating-ca-qub-notrated { background-position: 0 3px; height: 27px; }
+
+.rating-ca-qub-notyetrated { background-position: 0 3px; height: 27px; }
+
+.rating-ca-sas-notrated { background-position: 0 3px; height: 27px; }
+
+.rating-ca-sas-notyetrated { background-position: 0 3px; height: 27px; }
+
+.rating-ca-alb-14a { background-position: 0 -180px; height: 27px; width: 25px; }
+
+.rating-ca-brc-14a { background-position: 0 -180px; height: 27px; width: 25px; }
+
+.rating-ca-man-14a { background-position: 0 -180px; height: 27px; width: 25px; }
+
+.rating-ca-mar-14a { background-position: 0 -180px; height: 27px; width: 25px; }
+
+.rating-ca-ont-14a { background-position: 0 -180px; height: 27px; width: 25px; }
+
+.rating-ca-sas-14a { background-position: 0 -180px; height: 27px; width: 25px; }
+
+.rating-ca-alb-r { background-position: 0 -210px; height: 27px; width: 25px; }
+
+.rating-ca-brc-r { background-position: 0 -210px; height: 27px; width: 25px; }
+
+.rating-ca-man-r { background-position: 0 -210px; height: 27px; width: 25px; }
+
+.rating-ca-mar-r { background-position: 0 -210px; height: 27px; width: 25px; }
+
+.rating-ca-ont-r { background-position: 0 -210px; height: 27px; width: 25px; }
+
+.rating-ca-sas-r { background-position: 0 -210px; height: 27px; width: 25px; }
+
+.rating-ca-brc-ap { background-position: 0 -240px; height: 27px; width: 25px; }
+
+.rating-ca-sas-ap { background-position: 0 -240px; height: 27px; width: 25px; }
+
+.rating-ca-alb-pg { background-position: 0 -270px; height: 27px; width: 25px; }
+
+.rating-ca-brc-pg { background-position: 0 -270px; height: 27px; width: 25px; }
+
+.rating-ca-man-pg { background-position: 0 -270px; height: 27px; width: 25px; }
+
+.rating-ca-mar-pg { background-position: 0 -270px; height: 27px; width: 25px; }
+
+.rating-ca-ont-pg { background-position: 0 -270px; height: 27px; width: 25px; }
+
+.rating-ca-sas-pg { background-position: 0 -270px; height: 27px; width: 25px; }
+
+.rating-ca-alb-g { background-position: 0 -300px; height: 27px; width: 30px; }
+
+.rating-ca-brc-g { background-position: 0 -300px; height: 27px; width: 30px; }
+
+.rating-ca-man-g { background-position: 0 -300px; height: 27px; width: 30px; }
+
+.rating-ca-mar-g { background-position: 0 -300px; height: 27px; width: 30px; }
+
+.rating-ca-ont-g { background-position: 0 -300px; height: 27px; width: 30px; }
+
+.rating-ca-sas-g { background-position: 0 -300px; height: 27px; width: 30px; }
+
+.rating-ca-alb-18a { background-position: 0 -330px; height: 27px; width: 25px; }
+
+.rating-ca-brc-18a { background-position: 0 -330px; height: 27px; width: 25px; }
+
+.rating-ca-man-18a { background-position: 0 -330px; height: 27px; width: 25px; }
+
+.rating-ca-mar-18a { background-position: 0 -330px; height: 27px; width: 25px; }
+
+.rating-ca-ont-18a { background-position: 0 -330px; height: 27px; width: 25px; }
+
+.rating-ca-sas-18a { background-position: 0 -330px; height: 27px; width: 25px; }
+
+.rating-ca-qub-g { background-position: 0 -360px; height: 27px; width: 27px; }
+
+.rating-ca-qub-13plus { background-position: 0 -390px; height: 27px; width: 27px; }
+
+.rating-ca-qub-16plus { background-position: 0 -420px; height: 27px; width: 27px; }
+
+.rating-ca-qub-18plus { background-position: 0 -450px; height: 27px; width: 27px; }
+
+.rating-ca-alb-e { background-position: 0 -480px; height: 27px; width: 25px; }
+
+.rating-ca-brc-e { background-position: 0 -480px; height: 27px; width: 25px; }
+
+.rating-ca-man-e { background-position: 0 -480px; height: 27px; width: 25px; }
+
+.rating-ca-mar-e { background-position: 0 -480px; height: 27px; width: 25px; }
+
+.rating-ca-ont-e { background-position: 0 -480px; height: 27px; width: 25px; }
+
+.rating-ca-sas-e { background-position: 0 -480px; height: 27px; width: 25px; }
+
+.rating-ca-brc-sp { background-position: 0 -510px; height: 27px; width: 30px; }
+
+.rating-ca-sas-sp { background-position: 0 -510px; height: 27px; width: 30px; }
+
+.body-white .rating-nc17 { background-position: -90px -120px; height: 21px; }
+.body-white .rating-pg13 { background-position: -90px -30px; height: 21px; }
+.body-white .rating-pg { background-position: -90px -60px; height: 21px; }
+.body-white .rating-r { background-position: -90px -90px; height: 21px; }
+.body-white .rating-notrated, .body-white .rating-notyetrated, .body-white .rating-nr { background-position: -90px 0; height: 21px; }
+.body-white .rating-g { background-position: -90px -150px; height: 21px; }
+.body-white .rating-ca-alb-notyetrated { background-position: -90px 3px; height: 27px; }
+.body-white .rating-ca-alb-notrated { background-position: -90px 3px; height: 27px; }
+.body-white .rating-ca-brc-notrated { background-position: -90px 3px; height: 27px; }
+.body-white .rating-ca-brc-notyetrated { background-position: -90px 3px; height: 27px; }
+.body-white .rating-ca-man-notyetrated { background-position: -90px 3px; height: 27px; }
+.body-white .rating-ca-man-notrated { background-position: -90px 3px; height: 27px; }
+.body-white .rating-ca-mar-notyetrated { background-position: -90px 3px; height: 27px; }
+.body-white .rating-ca-mar-notrated { background-position: -90px 3px; height: 27px; }
+.body-white .rating-ca-ont-notrated { background-position: -90px 3px; height: 27px; }
+.body-white .rating-ca-ont-notyetrated { background-position: -90px 3px; height: 27px; }
+.body-white .rating-ca-qub-notrated { background-position: -90px 3px; height: 27px; }
+.body-white .rating-ca-qub-notyetrated { background-position: -90px 3px; height: 27px; }
+.body-white .rating-ca-sas-notrated { background-position: -90px 3px; height: 27px; }
+.body-white .rating-ca-sas-notyetrated { background-position: -90px 3px; height: 27px; }
+.body-white .rating-ca-alb-e { background-position: -90px -480px; height: 27px; width: 25px; }
+.body-white .rating-ca-brc-e { background-position: -90px -480px; height: 27px; width: 25px; }
+.body-white .rating-ca-man-e { background-position: -90px -480px; height: 27px; width: 25px; }
+.body-white .rating-ca-mar-e { background-position: -90px -480px; height: 27px; width: 25px; }
+.body-white .rating-ca-ont-e { background-position: -90px -480px; height: 27px; width: 25px; }
+.body-white .rating-ca-sas-e { background-position: -90px -480px; height: 27px; width: 25px; }
+.body-white .rating-ca-brc-sp { background-position: -90px -510px; height: 27px; width: 30px; }
+.body-white .rating-ca-sas-sp { background-position: -90px -510px; height: 27px; width: 30px; }
+
+#view-showtimes { padding-right: 5px; }
+#view-showtimes a.showtimes { margin-top: 0px; background: none; font: normal 12px/18px Helvetica; border: 1px solid #186b99; border-radius: 4px; padding: 3px 12px; color: #FFFFFF; background-image: none; background-size: 16px; background-color: #206a99; }
+body.body-white #view-showtimes a.showtimes { background-color: #08c; border: 1px solid #08c; }
+#view-showtimes a.showtimes.multiple { background: #206a99 url(https://trailers.apple.com/trailers/global/v4/images/icon_caret_down.png) right center no-repeat; padding-right: 28px; }
+body.body-white #view-showtimes a.showtimes.multiple { background: #08c url(https://trailers.apple.com/trailers/global/v4/images/icon_caret_down.png) right center no-repeat; }
+#view-showtimes a.showtimes.multiple:hover { background: #2478ae url(https://trailers.apple.com/trailers/global/v4/images/icon_caret_down.png) right center no-repeat; }
+body.body-white #view-showtimes a.showtimes.multiple:hover { background: #0092db url(https://trailers.apple.com/trailers/global/v4/images/icon_caret_down.png) right center no-repeat; }
+#view-showtimes a.showtimes.multiple:active, #view-showtimes a.showtimes.multiple.active { background: #2a83bb url(https://trailers.apple.com/trailers/global/v4/images/icon_caret_down.png) right center no-repeat; }
+body.body-white #view-showtimes a.showtimes.multiple:active, body.body-white #view-showtimes a.showtimes.multiple.active { background: #009ceb url(https://trailers.apple.com/trailers/global/v4/images/icon_caret_down.png) right center no-repeat; }
+#view-showtimes a.showtimes span { text-shadow: none; background: none; }
+#view-showtimes a.showtimes:hover { text-decoration: none; background: #2478ae; }
+body.body-white #view-showtimes a.showtimes:hover { background: #0092db; }
+#view-showtimes a.showtimes:active, #view-showtimes a.showtimes.active { background: #2a83bb; }
+body.body-white #view-showtimes a.showtimes:active, body.body-white #view-showtimes a.showtimes.active { background: #009ceb; }
+#view-showtimes .view-showtimes-list { display: none; padding: 3px 6px; background-color: #f5f5f5; border: 1px solid #c4c4c4; position: absolute; left: 110px; bottom: auto !important; top: -2px; z-index: 5; }
+#view-showtimes .view-showtimes-list li { border-top: 1px solid #cdcdcd; }
+#view-showtimes .view-showtimes-list li a { color: #000; }
+#view-showtimes .view-showtimes-list li a:hover { text-decoration: none; }
+#view-showtimes .view-showtimes-list li:first-child { border-top: none; }
+
+#panel-tabs { float: right; margin: 0; }
+#panel-tabs li { float: left; margin: 0 0 0 30px; position: relative; }
+#panel-tabs li.first { margin-left: 0; }
+#panel-tabs li a { display: block; color: #8c8c8c; text-decoration: none; }
+body.body-white #panel-tabs li a { color: #666666; }
+#panel-tabs li a h4 { padding: 0 0 0 25px; margin: 0 0 16px 0; display: block; font: normal 12px/20px Helvetica; line-height: 20px; color: #8c8c8c; }
+body.body-white #panel-tabs li a h4 { color: #666666; }
+#panel-tabs li a.tab-details h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -40px no-repeat; background-size: 20px 400px; }
+#panel-tabs li a.tab-related h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -140px no-repeat; background-size: 20px 400px; }
+#panel-tabs li a.tab-gallery h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -240px no-repeat; background-size: 20px 400px; }
+#panel-tabs li a.tab-reviews h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -340px no-repeat; background-size: 20px 400px; }
+body.body-white #panel-tabs li a.tab-details h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -40px no-repeat; background-size: 20px 400px; }
+body.body-white #panel-tabs li a.tab-related h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -140px no-repeat; background-size: 20px 400px; }
+body.body-white #panel-tabs li a.tab-gallery h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -240px no-repeat; background-size: 20px 400px; }
+body.body-white #panel-tabs li a.tab-reviews h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -340px no-repeat; background-size: 20px 400px; }
+#panel-tabs li a .caret { display: none; position: absolute; left: 50%; bottom: -1px; z-index: 10; width: 13px; height: 8px; background: url(https://trailers.apple.com/trailers/global/v4/images/divider_caret_dark_2x.png) no-repeat; background-size: 13px 8px; }
+body.body-white #panel-tabs li a .caret { background: url(https://trailers.apple.com/trailers/global/v4/images/divider_caret_light_2x.png) no-repeat; background-size: 13px 8px; }
+#panel-tabs li a:hover h4 { color: #b2b2b2; }
+body.body-white #panel-tabs li a:hover h4 { color: #333333; }
+#panel-tabs li a:hover.tab-details h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -20px no-repeat; background-size: 20px 400px; }
+#panel-tabs li a:hover.tab-related h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -120px no-repeat; background-size: 20px 400px; }
+#panel-tabs li a:hover.tab-gallery h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -220px no-repeat; background-size: 20px 400px; }
+#panel-tabs li a:hover.tab-reviews h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -320px no-repeat; background-size: 20px 400px; }
+body.body-white #panel-tabs li a:hover.tab-details h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -60px no-repeat; background-size: 20px 400px; }
+body.body-white #panel-tabs li a:hover.tab-related h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -160px no-repeat; background-size: 20px 400px; }
+body.body-white #panel-tabs li a:hover.tab-gallery h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -260px no-repeat; background-size: 20px 400px; }
+body.body-white #panel-tabs li a:hover.tab-reviews h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -360px no-repeat; background-size: 20px 400px; }
+#panel-tabs li.active a h4 { color: #FFFFFF; }
+body.body-white #panel-tabs li.active a h4 { color: #333333; }
+#panel-tabs li.active a.tab-details h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left 0px no-repeat; background-size: 20px 400px; }
+#panel-tabs li.active a.tab-related h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -100px no-repeat; background-size: 20px 400px; }
+#panel-tabs li.active a.tab-gallery h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -200px no-repeat; background-size: 20px 400px; }
+#panel-tabs li.active a.tab-reviews h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -300px no-repeat; background-size: 20px 400px; }
+body.body-white #panel-tabs li.active a.tab-details h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -60px no-repeat; background-size: 20px 400px; }
+body.body-white #panel-tabs li.active a.tab-related h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -160px no-repeat; background-size: 20px 400px; }
+body.body-white #panel-tabs li.active a.tab-gallery h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -260px no-repeat; background-size: 20px 400px; }
+body.body-white #panel-tabs li.active a.tab-reviews h4 { background: url(https://trailers.apple.com/trailers/global/v4/images/tab_icons_2x.png) left -360px no-repeat; background-size: 20px 400px; }
+#panel-tabs li.active a .caret { display: block; }
+
+#main-wrapper { min-width: 1024px; }
+.ie .overlaid #main-wrapper { opacity: 0.1; }
+
+#main { border: none; -webkit-box-shadow: none; background: transparent; width: 1024px; margin: 0 auto; }
+
+.page-divider { margin: 0 22px; padding: 0; }
+body.body-white .page-divider { border-color: #bfbfbf; }
+
+.film-detail a { color: #ccc; }
+.film-detail a:hover { text-decoration: none; color: #2478ae; }
+
+.ratings { position: relative; cursor: pointer; }
+.ratings .ratings-container { display: none; background-color: #191919; position: absolute; left: 50%; -webkit-transform: translateX(-50%); -moz-transform: translateX(-50%); -ms-transform: translateX(-50%); -o-transform: translateX(-50%); transform: translateX(-50%); top: 25px; border: 1px solid #393939; border-radius: 4px; z-index: 2147483647; }
+body.body-white .ratings .ratings-container { background-color: #fff; border-color: #bfbfbf; }
+.ratings .ratings-container li { display: inline-block; text-align: center; border-right: 1px solid #393939; vertical-align: middle; min-width: 70px; }
+.ratings .ratings-container li .region { display: block; border-bottom: 1px solid #393939; padding: 3px 5px; }
+.ratings .ratings-container li .movie-rating { margin: 5px; }
+body.body-white .ratings .ratings-container li { border-color: #bfbfbf; }
+.ratings .ratings-container li:last-child { margin-right: 0; border-right: none; }
+
+#content-panels { font-family: Helvetica; overflow: hidden; }
+#content-panels dl { margin: 0; line-height: 20px; }
+#content-panels dt, #content-panels dd { display: block; float: left; }
+#content-panels dt { float: left; width: 54px; font-weight: normal; text-align: right; }
+#content-panels dd { margin: 0 0 0 12px; }
+#content-panels .content-section { padding: 30px 0 30px; width: 978px; }
+
+.page-warning { padding: 5px; background-color: red; color: #FFF; }
+
+#panel-details { font-size: 1em; line-height: 1.4167em; font-weight: 300; font-family: "Helvetica Neue", Helvetica; color: #ccc; }
+body.body-white #panel-details { color: #666666; }
+#panel-details h4 { clear: both; margin: 0 0 10px; font: bold 16px/16px Helvetica; }
+#panel-details p { margin-top: 0; line-height: 20px; }
+#panel-details dl { margin: 0; line-height: 20px; }
+#panel-details dl:after { display: block; height: 0; visibility: hidden; line-height: 0; content: "."; clear: both; }
+#panel-details dt, #panel-details dd { display: inline-block; vertical-align: baseline; zoom: 1; *display: inline; *vertical-align: auto; float: left; }
+#panel-details dt { clear: both; width: 54px; font-weight: normal; text-align: right; color: #737373; }
+#panel-details dd { margin: 0 0 0 12px; color: #cccccc; width: 70%; }
+#panel-details dd a { color: #cccccc; }
+body.body-white #panel-details dt { color: #333333; }
+body.body-white #panel-details dd { color: #666666; }
+body.body-white #panel-details dd a { color: #666666; }
+#panel-details .column.first { width: 540px; float: left; }
+#panel-details .column.last { float: right; padding-left: 76px; width: 360px; }
+#panel-details .column.last h4 { margin: 24px 0 6px; }
+#panel-details .column.last dl:first-child { margin-top: 0; }
+
+.share li { float: left; }
+.share li a { display: block; background: url(/trailers/global/v4/images/social_icons.svg) no-repeat 0 0; height: 18px; width: 18px; overflow: hidden; margin-right: 10px; text-indent: -9999px; background-size: auto 36px; opacity: 0.5; }
+.share li a:hover { opacity: 0.9; }
+
+.share { margin: -6px 0 0; padding-top: 0; }
+.share .share-website a { background-image: none; color: #b3b3b3; width: auto !important; font-size: 1em; line-height: 18px; text-indent: 0; }
+body.body-white .share .share-website a { color: #6d6d6d; }
+.share .share-website a.link-arrow { opacity: 1; background: url(https://trailers.apple.com/trailers/global/v4/images/arrow_more_2x.png) right center no-repeat; background-size: 6px 10px; }
+.share .share-website a:hover { color: #fff; }
+body.body-white .share .share-website a:hover { color: #08c; }
+
+.share .share-facebook a { background-position: -18px -18px; }
+
+.share .share-facebook a:hover { background-position: -18px -18px; }
+
+.share .share-facebook a:active { background-position: -18px -18px; }
+
+.share .share-twitter a { background-position: -18px 0; }
+
+.share .share-twitter a:hover { background-position: -18px 0; }
+
+.share .share-twitter a:active { background-position: -18px 0; }
+
+body.body-white .share .share-facebook a { background-position: 0 -18px; }
+body.body-white .share .share-facebook a:hover { background-position: 0 -18px; }
+body.body-white .share .share-facebook a:active { background-position: 0 -18px; }
+body.body-white .share .share-twitter a { background-position: 0 0; }
+body.body-white .share .share-twitter a:hover { background-position: 0 0; }
+body.body-white .share .share-twitter a:active { background-position: 0 0; }
+body.body-white .share-website a:hover, body.body-white .share-website a:active { color: #08c; }
+
+body.itunes .share .share-facebook, body.itunes .share .share-twitter { display: none; }
+
+#panel-gallery { padding-bottom: 10px; }
+#panel-gallery .shaded-box { display: -webkit-box; display: -moz-box; display: box; display: -webkit-flex; display: -moz-flex; display: -ms-flexbox; display: flex; -webkit-box-orient: vertical; -moz-box-orient: vertical; box-orient: vertical; -webkit-box-pack: center; -moz-box-pack: center; box-pack: center; -ms-flex-pack: center; }
+#panel-gallery .photo-strip { display: block; margin: 0 auto; padding: 0 0 15px 0; text-align: center; }
+#panel-gallery .photo-thumb { margin: 5px 0 0 5px; display: inline-block; }
+#panel-gallery .photo-thumb a { display: block; text-align: center; }
+#panel-gallery .photo-thumb a img { height: 100px; width: auto; padding: 3px; }
+#panel-gallery .photo-thumb a:hover img { background: #206a99; box-shadow: none; }
+body.body-white #panel-gallery .photo-thumb a:hover img { background: #206a99; }
+#panel-gallery .photo-thumb .movieframegallerylink { display: block; }
+#panel-gallery .empty { height: 70px; width: 140px; }
+#panel-gallery .horizontal-scroll ::-webkit-scrollbar-track { margin: 0 5%; }
+
+/* Reviews content */
+#panel-reviews { font-size: 1em; line-height: 1.4167em; font-weight: 300; color: #ccc; }
+body.body-white #panel-reviews { color: #666666; }
+#panel-reviews .rating-container { float: left; margin: 0; width: 192px; padding-top: 21px; }
+#panel-reviews .rating-container .stats { padding: 10px 0; }
+#panel-reviews .rating-container .stats dl dt { width: 60%; }
+#panel-reviews .reviews-container { width: 700px; padding-top: 21px; float: right; }
+#panel-reviews .overall-rating { padding: 0 0 18px; font-weight: 300; font-size: 3.8333em; color: #ffffff; }
+body.body-white #panel-reviews .overall-rating { color: #666; }
+#panel-reviews .overall-rating .rating-small { font-size: 0.4565em; }
+#panel-reviews .overall-rating #rating-meter { position: relative; margin: 12px 0 4px; width: 192px; height: 26px; -webkit-box-sizing: content-box; border-radius: 2px; overflow: hidden; background: #73c83b; }
+#panel-reviews .overall-rating #rating-red { position: absolute; height: 26px; background: #e3242a; }
+#panel-reviews .overall-rating img { padding-right: 10px; }
+#panel-reviews .more-link { padding-top: 19px; }
+#panel-reviews .more-link a { color: #b3b3b3; }
+#panel-reviews .more-link a:hover { color: #fff; }
+body.body-white #panel-reviews .more-link a { color: #595959; }
+body.body-white #panel-reviews .more-link a:hover { color: #08c; }
+#panel-reviews .more-link #rt-link { font-size: 1em; white-space: nowrap; }
+#panel-reviews .review { display: inline-block; vertical-align: baseline; zoom: 1; *display: inline; *vertical-align: auto; vertical-align: top; margin-bottom: 50px; width: 315px; background: url(https://trailers.apple.com/trailers/global/v4/images/ratings_negative.png) 0 0 no-repeat; margin-left: 35px; }
+#panel-reviews .review.fresh { background-image: url(https://trailers.apple.com/trailers/global/v4/images/ratings_positive.png); }
+#panel-reviews .review p { display: -webkit-box; -webkit-box-orient: vertical; margin: 0 0 6px 35px; overflow: hidden; text-overflow: ellipsis; -webkit-line-clamp: 3; line-height: 1.8em; }
+body.body-white #panel-reviews .review p { color: #666666; }
+#panel-reviews .review .publisher { display: block; text-align: right; font-size: 0.9em; line-height: 1.4em; color: #808080; font-weight: 400; }
+body.body-white #panel-reviews .review .publisher { color: #333333; }
+
+#content-swap .reviews .stats { padding: 10px 0; }
+#content-swap .reviews .stats dl { font-size: 12px; line-height: 1.4286em; }
+#content-swap .reviews .stats dt { width: 115px; color: #666666; }
+body.body-white #content-swap .reviews .stats dt { color: #666666; }
+
+#panel-related h5 { font: normal 1.5em/1.5em "Helvetica Neue", Helvetica; font-weight: 300; letter-spacing: 0.1em; color: #ffffff; margin: 0 0 12px 0; }
+body.body-white #panel-related h5 { font-weight: 300; color: #666; }
+#panel-related .related-feature { float: left; width: 215px; }
+#panel-related .related-feature h5 { text-align: center; }
+#panel-related .related-feature a { display: block; text-align: center; text-decoration: none; }
+#panel-related .related-feature a img { display: block; margin: 0 auto; padding: 3px; }
+#panel-related .related-feature a:hover img { background-color: #08c; }
+#panel-related .related-feature .blue-button { margin: 10px auto 2px; font-size: 1em; line-height: 1em; }
+#panel-related .related-items { width: 720px; float: right; padding-left: 30px; border-left: 1px solid #393939; }
+body.body-white #panel-related .related-items { border-color: #bfbfbf; }
+#panel-related .full-width { width: 100%; }
+#panel-related .full-width .related-content-wrapper { width: 980px; padding-left: 0; border-left: none; }
+
+.content-section.related .scroll-content { padding-bottom: 18px; padding-top: 3px; overflow: hidden; }
+.content-section.related .scroll-content .related-content { width: 999em; }
+.content-section.related .scroll-content li { float: left; margin: 0 20px; width: 100px; vertical-align: bottom; white-space: normal; }
+.content-section.related .scroll-content li a.img-block { display: block; margin: 0 0 7px; width: 86px; height: 150px; display: table-cell; vertical-align: bottom; }
+.content-section.related .scroll-content li a.img-block img { vertical-align: bottom; padding: 3px; }
+.content-section.related .scroll-content li a.img-block:hover img { background-color: #08c; }
+.content-section.related .scroll-content li a { width: 100%; height: 100%; }
+.content-section.related .scroll-content li span { display: block; font: 12px/1.4em "Helvetica Neue", Helvetica; font-weight: 400; color: #8c8c8c; }
+body.body-white .content-section.related .scroll-content li span { color: #666; }
+.content-section.related .scroll-content li span.product-title { display: -webkit-box; overflow: hidden; text-overflow: ellipsis; font-weight: 500; color: #ccc; -webkit-line-clamp: 2; -webkit-box-orient: vertical; max-height: 2.8em; }
+body.body-white .content-section.related .scroll-content li span.product-title { color: #333; }
+
+#overlay-screen { display: none; position: fixed; z-index: 1000; top: 0px; left: 0px; height: 100%; width: 100%; background-color: black; opacity: 0.9; overflow: auto; }
+.body-white #overlay-screen { background-color: white; }
+
+#overlay { position: absolute; z-index: 1100; top: 60px; left: 0; width: 100%; }
+@media only screen and (device-aspect-ratio: 2 / 3), only screen and (device-aspect-ratio: 40 / 71), only screen and (device-aspect-ratio: 3 / 4) { #overlay { width: 1024px; } }
+#overlay .close-overlay { display: none; background: rgba(0, 0, 0, 0.8); color: #fff; width: 20px; height: 20px; border-radius: 100%; text-align: center; line-height: 20px; font-weight: bold; border: 2px solid #fff; position: absolute; top: -10px; left: -10px; z-index: 11000; box-shadow: 0px 2px 5px black; }
+#overlay .close-overlay a { display: block; color: #fff; position: relative; font-size: 16px; top: -1px; text-transform: lowercase; }
+#overlay .close-overlay:hover { border-color: #d9d9d9; }
+#overlay .close-overlay:hover a { color: #d9d9d9; }
+.isIpad #overlay .video-player .close-overlay { top: -18px; left: -18px; width: 25px; height: 25px; line-height: 25px; }
+
+/* Overlay */
+#simplemodal-overlay { background-color: #000; }
+
+/* Container */
+#simplemodal-container { background-color: #eee; color: #000; font: 16px/24px "Lucida Grande",Arial,sans-serif; padding-bottom: 4px; width: 600px; -moz-border-radius-bottomleft: 6px; -webkit-border-bottom-left-radius: 6px; -moz-border-radius-bottomright: 6px; -webkit-border-bottom-right-radius: 6px; border-radius: 0 0 6px 6px; -moz-box-shadow: 0 0 64px #000; -webkit-box-shadow: 0 0 64px #000; box-shadow: 0 0 64px #000; }
+
+#simplemodal-container a { color: #ddd; }
+
+#simplemodal-container #osx-modal-title { color: #000; background-color: #ddd; border-bottom: 1px solid #ccc; font-weight: bold; padding: 6px 8px; text-shadow: 0 1px 0 #f4f4f4; }
+
+#simplemodal-container .close { display: none; position: absolute; right: 0; top: 0; }
+
+#simplemodal-container .close a { display: block; color: #777; font-weight: bold; padding: 6px 12px 0; text-decoration: none; text-shadow: 0 1px 0 #f4f4f4; }
+
+#simplemodal-container .close a:hover { color: #000; }
+
+#simplemodal-container #osx-modal-data { font-size: 12px; padding: 6px 12px; }
+
+#simplemodal-container h2 { margin: 10px 0 6px; }
+
+#simplemodal-container p { margin-bottom: 10px; }
+
+#simplemodal-container span { color: #777; }
+
+#overlay-gallery .current-photo { position: relative; }
+
+#overlay-gallery .photo-tray { padding: 10px 40px; background: #211f20; }
+#overlay-gallery .photo-strip { width: 100%; overflow: hidden; position: relative; height: 166px; white-space: nowrap; }
+#overlay-gallery #photo-scroll { position: absolute; margin: 0; padding: 0; }
+#overlay-gallery #photo-scroll:after { content: ""; display: table; clear: both; }
+#overlay-gallery #photo-scroll .photo-thumb { display: inline-block; white-space: nowrap; }
+#overlay-gallery #photo-scroll .photo-thumb a { display: block; height: 100%; padding: 3px; }
+#overlay-gallery #photo-scroll .photo-thumb a img { display: block; pointer-events: none; }
+#overlay-gallery #photo-scroll .photo-thumb a:hover { background-color: #206a99; }
+#overlay-gallery #photo-scroll .photo-thumb.active a { background-color: #206a99; }
+#overlay-gallery .scrollbar { position: relative; height: 12px; padding-top: 5px; }
+
+#overlay-gallery .current-photo { text-align: center; height: 720px; }
+#overlay-gallery .current-photo .photo-stage { width: 100%; position: absolute; bottom: 0; }
+#overlay-gallery .current-photo .gallery-image { margin: 0 40px; display: inline-block; position: relative; }
+#overlay-gallery .current-photo img { max-width: 100%; max-height: 100%; }
+#overlay-gallery .gallery-arrow { width: 60px; height: 120px; color: #fff; position: absolute; top: 50%; -webkit-transform: translateY(-50%); -moz-transform: translateY(-50%); -ms-transform: translateY(-50%); -o-transform: translateY(-50%); transform: translateY(-50%); background: rgba(255, 255, 255, 0.2) url(/trailers/global/v4/images/paddle_sprite.svg) no-repeat 0 0; background-size: auto 80px; border-radius: 4px; z-index: 2147483647; cursor: pointer; }
+#overlay-gallery .arrow-left { left: 60px; background-position: -208px 50%; }
+#overlay-gallery .arrow-left:hover { background-color: rgba(255, 255, 255, 0.4); }
+#overlay-gallery .arrow-right { right: 60px; background-position: -366px 50%; }
+#overlay-gallery .arrow-right:hover { background-color: rgba(255, 255, 255, 0.4); }
+
+#overlay-video { margin-top: 40px; }
+#overlay-video video#video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+#overlay-video .video-player { position: relative; margin: 0 auto; background-color: #000; }
+#overlay-video .video-player.animated { -webkit-transition: all 0.8s ease-in-out; -moz-transition: all 0.8s ease-in-out; -o-transition: all 0.8s ease-in-out; transition: all 0.8s ease-in-out; }
+#overlay-video .video-player #video-loader { display: block; height: 100%; position: absolute; top: 0; z-index: 10000; left: 50%; -webkit-transform: translateX(-50%); -moz-transform: translateX(-50%); -o-transform: translateX(-50%); transform: translateX(-50%); }
+#overlay-video .video-player .video-poster { display: none; background-size: cover; background-position: center; background-repeat: no-repeat; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+#overlay-video .video-player .video-poster .poster-block { display: block; display: none; overflow: hidden; position: absolute; top: 25px; top: 50%; left: 50%; -webkit-transform: translateX(-50%) translateY(-50%); -moz-transform: translateX(-50%) translateY(-50%); -ms-transform: translateX(-50%) translateY(-50%); -o-transform: translateX(-50%) translateY(-50%); transform: translateX(-50%) translateY(-50%); color: #000000; font-size: 25px; }
+#overlay-video .video-player .video-poster .poster-block .poster-title { white-space: nowrap; cursor: pointer; position: relative; z-index: 800; font-size: 18px; line-height: 40px; padding: 25px 0 25px 25px; background-color: rgba(255, 255, 255, 0.6); }
+#overlay-video .video-player .video-poster .poster-block .poster-title:hover { color: #FFFFFE; }
+#overlay-video .video-player .video-poster .poster-block .poster-title:hover .icon { font-size: 40px; }
+#overlay-video .video-player .video-poster .poster-block .poster-play { position: relative; z-index: 800; display: inline-block; margin: 0 25px; vertical-align: middle; font-size: 18px; line-height: 40px; text-align: center; width: 40px; height: 40px; }
+#overlay-video .video-player .video-poster .poster-block .poster-play .icon { font-size: 40px; }
+#overlay-video .video-player .video-poster .poster-block .poster-share { position: relative; z-index: 800; width: 100%; padding: 0; background-color: rgba(255, 255, 255, 0.6); }
+#overlay-video .video-player .video-poster .poster-block .poster-share ul { margin: 0; padding: 25px; border-top: 1px solid #bfbfbf; }
+#overlay-video .video-player .video-poster .poster-block .poster-share ul:after { content: ""; display: table; clear: both; }
+#overlay-video .video-player .video-poster .poster-block .poster-share ul li { font-size: 16px; line-height: 24px; }
+#overlay-video .video-player .video-poster .poster-block .poster-share ul li:first-child { padding-right: 15px; }
+#overlay-video .video-player .video-poster .poster-block .poster-share ul li a { color: #000; }
+#overlay-video .video-player .video-poster .poster-block .poster-share ul li a:hover { color: #fff; }
+#overlay-video .video-player .video-poster .poster-block .poster-share ul.share li a { height: 24px; width: 24px; background-size: auto 48px; opacity: 1; }
+#overlay-video .video-player .video-poster .poster-block .poster-share ul.share .share-facebook a { background-position: 0 -24px; }
+#overlay-video .video-player .video-poster .poster-block .poster-share ul.share .share-facebook a:hover { background-position: -24px -24px; }
+#overlay-video .video-player .video-poster .poster-block .poster-share ul.share .share-facebook a:active { background-position: -24px -24px; }
+#overlay-video .video-player .video-poster .poster-block .poster-share ul.share .share-twitter a { background-position: 0 0; }
+#overlay-video .video-player .video-poster .poster-block .poster-share ul.share .share-twitter a:hover { background-position: -24px 0; }
+#overlay-video .video-player .video-poster .poster-block .poster-share ul.share .share-twitter a:active { background-position: -24px 0; }
+#overlay-video .video-player .video-poster .poster-block .poster-glass { position: absolute; display: block; z-index: 750; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.6); }
+#overlay-video .video-player .video-poster .poster-block .poster-back { display: none; z-index: 740; -webkit-filter: blur(10px); -moz-filter: blur(10px); -o-filter: blur(10px); -ms-filter: blur(10px); filter: blur(10px); background-size: cover; background-position: center; background-repeat: no-repeat; position: absolute; top: -25px; left: -47%; }
+#overlay-video video, #overlay-video #quicktimeWrapper { position: relative; display: block; width: 100%; height: 100%; pointer-events: none; }
+
+#qt_event_source { z-index: 0; position: absolute; top: 0; left: 0; width: 1px; height: 1px; }
+
+#overlay-video #clip-tray { position: relative; padding: 0 40px 10px; background: #211f20; }
+.isIpad #overlay-video #clip-tray { display: none !important; }
+.body-white #overlay-video #clip-tray { background-color: #e1e1e1; }
+
+video::-webkit-media-controls { display: none !important; }
+
+.android video::-webkit-media-controls { display: flex !important; }
+
+.videocontrols { display: none; position: absolute; bottom: 25px; left: 50%; z-index: 2147483647; margin-left: -225px; width: 440px; border-radius: 12px; -webkit-box-shadow: #333 1px -1px 1px; -moz-box-shadow: #333 1px -1px 1px; box-shadow: #333 1px -1px 1px; background-color: rgba(0, 0, 0, 0.6); background-image: -webkit-linear-gradient(top, rgba(20, 20, 20, 0.6) 0%, rgba(20, 20, 20, 0.6) 20px, rgba(0, 0, 0, 0.6) 20px, rgba(0, 0, 0, 0.6) 100%); background-image: -moz-linear-gradient(top, rgba(20, 20, 20, 0.6) 0%, rgba(20, 20, 20, 0.6) 20px, rgba(0, 0, 0, 0.6) 20px, rgba(0, 0, 0, 0.6) 100%); background-image: linear, top, rgba(20, 20, 20, 0.6) 0%, rgba(20, 20, 20, 0.6) 20px, rgba(0, 0, 0, 0.6) 20px, rgba(0, 0, 0, 0.6) 100%; }
+.videocontrols button { display: inline-block; padding: 0; border: 0; background-color: transparent; color: rgba(255, 255, 254, 0.5); -webkit-appearance: none; }
+.videocontrols button:hover { color: #FFFFFE; }
+.videocontrols .controls { position: relative; z-index: 800; padding: 3px 0 2px; width: 100%; }
+.videocontrols .playhead { position: absolute; left: 0; top: 3px; display: block; margin: -2px 0 0 -5px; width: 6px; height: 6px; border: 1px solid rgba(6, 0, 0, 0.2); background-color: #FFFFFE; -webkit-transform: rotate(45deg); -moz-transform: rotate(45deg); transform: rotate(45deg); -webkit-box-shadow: 0px 1px 2px -1px rgba(6, 0, 0, 0.7); -moz-box-shadow: 0px 1px 2px -1px rgba(6, 0, 0, 0.7); box-shadow: 0px 1px 2px -1px rgba(6, 0, 0, 0.7); cursor: pointer; z-index: 10; }
+.videocontrols .volume { position: absolute; top: 5px; left: 8px; padding: 14px 0 14px; width: 35px; font-size: 20px; }
+.videocontrols .volume:before { content: " "; background-image: url(https://trailers.apple.com/trailers/global/v4/images/ac_media_regular_controls.png); background-position: 129px 0; width: 20px; height: 20px; position: absolute; top: 3px; }
+.videocontrols .volume:after { content: " "; background-image: url(https://trailers.apple.com/trailers/global/v4/images/ac_media_regular_controls.png); background-position: 95px 0; width: 20px; height: 20px; position: absolute; top: 3px; right: -55px; }
+.videocontrols .volume .track { position: relative; left: 20px; margin: 0 4px; width: 35px; height: 6px; border-radius: 3px; -webkit-box-shadow: #333 1px 1px 1px; -moz-box-shadow: #333 1px 1px 1px; box-shadow: #333 1px 1px 1px; background-image: -webkit-linear-gradient(top, #555 0%, #222 100%); background-image: -moz-linear-gradient(top, #555 0%, #222 100%); background-image: linear, top, #555 0%, #222 100%; align-self: center; }
+.videocontrols .volume .progress { display: block; width: 100%; height: 7px; border-radius: 3px; -webkit-box-shadow: #333 1px 1px 1px; -moz-box-shadow: #333 1px 1px 1px; box-shadow: #333 1px 1px 1px; background-image: -webkit-linear-gradient(top, #444 0%, #000 100%); background-image: -moz-linear-gradient(top, #444 0%, #000 100%); background-image: linear, top, #444 0%, #000 100%; background: #444; }
+.videocontrols .volume .playhead { left: 100%; border-radius: 100%; -webkit-transform: rotate(0deg); -moz-transform: rotate(0deg); transform: rotate(0deg); width: 8px; height: 8px; margin-top: -5px; }
+.videocontrols .volume .title { font-size: 10px; position: absolute; right: 3px; top: 6px; background: transparent; }
+.videocontrols .buttons { display: block; margin: 0 auto; text-align: center; font-size: 32px; }
+.videocontrols .buttons a { padding: 0 12px; }
+.videocontrols .options { position: absolute; top: 5px; right: 8px; text-align: right; font-size: 24px; }
+.videocontrols .options:after { content: ""; display: table; clear: both; }
+.videocontrols .options .option { display: inline-block; padding: 0; }
+.videocontrols .options .option ul { color: rgba(255, 255, 254, 0.5); display: none; position: absolute; bottom: 29px; right: -5px; font-size: 12px; white-space: nowrap; border-radius: 3px 3px 0 0; background-color: rgba(6, 0, 0, 0.9); }
+.videocontrols .options .option ul li { border-bottom: 1px solid #333; }
+.videocontrols .options .option ul li button { display: block; padding: 3px 8px 3px 0; }
+.videocontrols .options .option ul li button:before { content: " "; width: 16px; height: 1em; display: inline-block; }
+.videocontrols .options .option ul li.active button { color: #FFFFFE; }
+.videocontrols .options .option ul li.active button:before { content: " "; line-height: 1em; }
+.videocontrols .options .option ul.active { display: block; }
+.videocontrols .options .option .icon-pip { display: none; }
+.videocontrols .timeline { z-index: 800; position: relative; clear: both; padding: 2px 0 7px; width: 440px; }
+.videocontrols .timeline .elapsed { position: absolute; top: -2px; left: 17px; font-size: 10px; color: #fff; }
+.videocontrols .timeline .track { position: relative; margin: 0 auto; width: 330px; height: 10px; border-radius: 5px; -webkit-box-shadow: #333 1px 1px 1px; -moz-box-shadow: #333 1px 1px 1px; box-shadow: #333 1px 1px 1px; background-color: #444; align-self: center; z-index: 0; }
+.videocontrols .timeline .track .progress { display: block; position: relative; top: -10px; left: -1px; width: 0; height: 10px; border-radius: 5px 0 0 5px; background-image: -webkit-linear-gradient(top, #51d3ff 0%, #187ffe 100%); background-image: -moz-linear-gradient(top, #41c3ff 0%, #288ffe 100%); background-image: linear, top, #51d3ff 0%, #187ffe 100%; background-color: #51d3ff; z-index: 2; margin-left: -6px; padding-left: 6px; }
+.videocontrols .timeline .track .buffer { display: block; width: 0; height: 10px; border-radius: 5px; background: -webkit-linear-gradient(top, #444 0%, #000 100%); background: -moz-linear-gradient(top, #444 0%, #000 100%); background: linear, top, #444 0%, #000 100%; z-index: 1; margin-left: -6px; padding-left: 6px; }
+.videocontrols .timeline .remaining { position: absolute; top: -3px; right: 15px; font-size: 10px; color: #fff; }
+.videocontrols #glassblur { z-index: 500; position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; }
+
+/*  -------------------- General --------------------*/
+#showtimesmain { width: 980px; margin: 0 auto; }
+#showtimesmain .column { float: left; }
+
+.showtimesmain .button { display: inline-block; vertical-align: baseline; zoom: 1; *display: inline; *vertical-align: auto; margin: 0 5px -4px 0; width: auto; _display: block; _float: left; text-decoration: none; text-shadow: none; padding: 0 10px; color: #fff; height: 18px; line-height: 18px; overflow: hidden; background-color: #186b99; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; }
+body.body-white .showtimesmain .button { background-color: #08c; }
+
+.showtimesmain .button:hover { color: #e4e4e4; background-color: #155c83; }
+body.body-white .showtimesmain .button:hover { background-color: #007ebd; color: #ffffff; }
+
+.showtimesmain .button.gray { background-color: #808080; }
+
+.showtimesmain .button.gray:hover { color: #e4e4e4; background-color: #676767; }
+
+.showtimesmain .grid2colc .first { width: 400px; }
+.showtimesmain .grid2colc .last { width: 570px; }
+
+/*  -------------------- Heading --------------------*/
+.showtimesmain #header { border-bottom: 1px solid #393939; padding-bottom: 10px; zoom: 1; }
+body.body-white .showtimesmain #header { border-bottom: 1px solid #bfbfbf; }
+.showtimesmain #header:after { content: '.'; display: block; height: 0; clear: both; visibility: hidden; }
+.showtimesmain #header h2 { margin: 0; padding: 0; border: none; line-height: 28px; font-family: "Helvetica Neue", Helvetica; font-weight: 300; font-size: 25px; letter-spacing: 0.04em; color: #fff; text-rendering: optimizeLegibility; float: left; }
+body.body-white .showtimesmain #header h2 { color: #333; }
+.showtimesmain #header h2 #tms_title { cursor: pointer; }
+.showtimesmain #header .runtime { line-height: 28px; margin: 0; float: right; color: white; }
+body.body-white .showtimesmain #header .runtime { color: #333; }
+
+.showtimesmain { width: 980px; padding: 15px 0; margin-bottom: 20px; position: relative; -webkit-transition: opacity 1s ease-in; }
+.showtimesmain .container { padding: 0; }
+.showtimesmain .container #showtime-select { font-family: "Helvetica Neue", Helvetica; font-weight: 300; color: #f9f9f9; margin: 0; padding: 12px 0; *padding-top: 12px; border-bottom: 1px solid #393939; }
+body.body-white .showtimesmain .container #showtime-select { color: #595959; }
+body.body-white .showtimesmain .container #showtime-select { border-bottom: 1px solid #bfbfbf; }
+.showtimesmain .container #showtime-select .column { width: auto; }
+.showtimesmain .container #showtime-select #zip_input_submit { border: none; -webkit-appearance: none; -moz-appearance: none; }
+.showtimesmain .container #showtime-select #zip_input, .showtimesmain .container #showtime-select #tms_id_select, .showtimesmain .container #showtime-select #date_select { background-color: #ccc; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; }
+body.body-white .showtimesmain .container #showtime-select #zip_input, body.body-white .showtimesmain .container #showtime-select #tms_id_select, body.body-white .showtimesmain .container #showtime-select #date_select { background-color: #e1e1e1; border-color: #bfbfbf; }
+.showtimesmain .container #showtime-select #tms_id_select { max-width: 240px; }
+.showtimesmain .container #showtime-select input, .showtimesmain .container #showtime-select select { margin: 0 10px; border: 1px solid #bfbfbf; }
+.showtimesmain .container #showtime-select #zip_input { border: 1px solid #fff; }
+.showtimesmain .container #showtime-select #zip_input::-webkit-input-placeholder { color: #000; }
+.showtimesmain .container #showtime-select #zip_input:-moz-placeholder { color: #000; }
+.showtimesmain .container #showtime-select #zip_input::-moz-placeholder { color: #000; }
+.showtimesmain .container #showtime-select #zip_input:-ms-input-placeholder { color: #000; }
+
+/* Content */
+.showtimesmain .container #content { padding: 15px 0; }
+.showtimesmain .container #content.loading { height: 683px; background: url(https://trailers.apple.com/trailers/global/images/showtimes/showtimes-dark-ajax-spinner.gif) no-repeat 50% 50%; }
+.showtimesmain .container #content.loading h3, .showtimesmain .container #content.loading p, .showtimesmain .container #content.loading ul, .showtimesmain .container #content.loading div { display: none; }
+.showtimesmain .container #content.loading .column, .showtimesmain .container #content.loading .movie-title-bar h3, .showtimesmain .container #content.loading .movie-title-bar p, .showtimesmain .container #content.loading .movie-title-bar { display: block; }
+.showtimesmain .container #content.loading #listing { display: none; }
+.showtimesmain .container #content.needs-location div, .showtimesmain .container #content.needs-location ul { display: none; }
+.showtimesmain .container #content.needs-location ul.active { display: block; }
+.showtimesmain .container #content.needs-location .column, .showtimesmain .container #content.needs-location .movie-title-bar h3, .showtimesmain .container #content.needs-location .movie-title-bar p, .showtimesmain .container #content.needs-location .movie-title-bar { display: block; }
+.showtimesmain .container #content.needs-location #listing { display: none; }
+.showtimesmain .container #content #get-location { display: none; padding: 100px 0 125px; width: 610px; float: right; }
+.showtimesmain .container #content.needs-location #get-location { display: block; }
+.showtimesmain .container #content .failure { font-size: 1.4em; margin: 0 2px -1em; color: #e22a2a; }
+
+/*  -------------------- Legend --------------------*/
+.showtimesmain .legend { -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px; margin: 0 23px 10px 0; padding: 10px 0; border: 1px solid transparent; }
+body.body-white .showtimesmain .legend { color: #666; }
+
+.showtimesmain .legend li { float: left; margin-right: 20px; display: block; padding-left: 15px; height: 12px; line-height: 12px; background: url(https://trailers.apple.com/trailers/global/v4/images/showtimes/timeline_dots.png) no-repeat 0 -30px; font-size: 11px; z-index: 1; color: white; }
+
+.showtimesmain .legend li.legend-disabled { background-position: 0 -45px; }
+
+.showtimesmain .legend li.legend-bargain { background-position: 0 -15px; }
+
+.showtimesmain .legend li.legend-normal { margin-right: 0; }
+
+/*  -------------------- Listing --------------------*/
+.showtimesmain #listing { display: block; position: relative; height: 695px; }
+
+.showtimesmain #listing .page { position: absolute; }
+
+.showtimesmain #listing .no-showtimes li { list-style-type: none; margin: 0; padding: 25px 15px 0px; }
+.showtimesmain #listing .no-showtimes li h3 { font-family: "Helvetica Neue", Helvetica; font-weight: 300; color: #f9f9f9; }
+body.body-white .showtimesmain #listing .no-showtimes li h3 { color: #333; }
+
+.showtimesmain #listing li.theater { padding: 25px 15px 0px; -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px; cursor: pointer; background: transparent; *background: black; position: relative; border: 1px solid black; }
+
+.showtimesmain #listing li.theater p.subhead { text-overflow: ellipsis; white-space: nowrap; overflow: hidden; margin: 0; }
+body.body-white .showtimesmain #listing li.theater p.subhead { color: #666; }
+
+.showtimesmain #listing li.theater.timeline { padding: 15px 5px 55px; }
+
+.showtimesmain #listing li.theater:hover { background: rgba(0, 0, 0, 0.25); *background: #101010; }
+
+.showtimesmain #listing li.theater.active { background: rgba(0, 0, 0, 0.75); *background: #010101; cursor: default; border: 1px solid grey; }
+
+.showtimesmain #listing li.theater h3 { letter-spacing: 0.1em; padding-bottom: 5px; margin: 0; line-height: 1.2em; font-size: 17px; font-family: "Helvetica Neue", Helvetica; font-weight: 300; color: #fff; }
+body.body-white .showtimesmain #listing li.theater h3 { color: #333; }
+
+.showtimesmain #listing li.theater .mileage { font-size: 14px; position: absolute; top: 60px; }
+
+.theater-info { float: left; padding-bottom: 10px; }
+
+/* Numbering */
+.showtimesmain #listing li.theater .numbering { display: block; float: left; width: 20px; height: 30px; text-indent: -10000em; background: no-repeat 50% 50%; margin-right: 15px; }
+
+.showtimesmain #listing li.theater .numbering.no-0 { background-image: url(https://trailers.apple.com/trailers/global/v4/images/showtimes/map_marker_a.png); }
+
+.showtimesmain #listing li.theater .numbering.no-1 { background-image: url(https://trailers.apple.com/trailers/global/v4/images/showtimes/map_marker_b.png); }
+
+.showtimesmain #listing li.theater .numbering.no-2 { background-image: url(https://trailers.apple.com/trailers/global/v4/images/showtimes/map_marker_c.png); }
+
+.showtimesmain #listing li.theater .numbering.no-3 { background-image: url(https://trailers.apple.com/trailers/global/v4/images/showtimes/map_marker_d.png); }
+
+.showtimesmain #listing li.theater .numbering.no-4 { background-image: url(https://trailers.apple.com/trailers/global/v4/images/showtimes/map_marker_e.png); }
+
+/* Grid (Timeline) */
+.showtimesmain .grid { clear: both; height: 12px; width: 540px; position: relative; background-color: rgba(74, 73, 72, 0.7); -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px; }
+body.body-white .showtimesmain .grid { background-color: #e4e4e4; }
+
+.showtimesmain .grid .current-time { position: absolute; left: 0; height: 12px; background-color: #545553; z-index: 1; -webkit-border-radius: 8px 0 0 8px; -moz-border-radius: 8px 0 0 8px; border-radius: 8px 0 0 8px; }
+body.body-white .showtimesmain .grid .current-time { background-color: #bfbfbf; }
+
+.showtimesmain .grid ol { position: relative; }
+
+.showtimesmain .grid ol li a.dot { color: #fff; display: block; position: absolute; top: 0; height: 12px; width: 12px; z-index: 2; background: url(https://trailers.apple.com/trailers/global/v4/images/showtimes/timeline_dots.png) no-repeat 0 -30px; margin: 0; }
+
+.showtimesmain .grid ol li a.dot .time { display: block; position: relative; bottom: -14px; left: -8px; z-index: 3; text-align: center; cursor: pointer; font-size: 11px; white-space: nowrap; }
+body.body-white .showtimesmain .grid ol li a.dot .time { color: #595959; }
+
+.showtimesmain .grid ol li a.dot.overlap1 .time { bottom: -30px; }
+
+.showtimesmain .grid ol li a.dot.overlap2 .time { bottom: -44px; }
+
+.showtimesmain .grid ol li a.dot.bargain { background-position: 0 -15px; }
+
+.showtimesmain .grid ol li a.dot.hover, .showtimesmain .grid ol li a.dot:hover { background-position: 0 0; text-decoration: none; color: #fe8300; }
+
+.showtimesmain .grid ol li a.dot.disabled { color: #666; background-position: 0 -45px; cursor: pointer; pointer-events: none; }
+
+.showtimesmain #listing li.theater.active a.dot.disabled, .showtimesmain #listing li.theater.active a.dot.disabled .time { cursor: default; }
+
+/* Title Breadcrumbs */
+.showtimesmain ul.title { margin: 0; padding: 0 22px; border-bottom: none; zoom: 1; }
+
+.showtimesmain ul.title:after { content: "."; display: block; height: 0; clear: both; visibility: hidden; }
+
+.showtimesmain ul.title li { font-size: 14px; float: left; }
+
+.showtimesmain ul.title li a { display: block; padding-right: 25px; margin-right: 15px; float: left; background: url(https://trailers.apple.com/global/images/title-breadcrumb-divider.png) no-repeat 100% 50%; }
+
+.showtimesmain ul.title li h1 { font-size: 1em; margin: 0; color: #fff; }
+
+.showtimesmain ul.title li h4 { padding-top: 17px; *padding-top: 15px; margin: 0 0 0 25px; line-height: 1em; font-size: 1em; color: #bfbfbf; }
+
+.showtimesmain ul.title li h4 label { color: #bfbfbf; }
+
+.showtimesmain ul.title li h1, .showtimesmain ul.title li a { font-size: 19px; line-height: 54px; *height: 54px; }
+
+/*  -------------------- Content & Container --------------------*/
+.showtimesmain .location-message { display: none; }
+
+/*  -------------------- Map --------------------*/
+.showtimesmain .location-message h2 { font-family: "Helvetica Neue", Helvetica; font-weight: 300; color: #fff; }
+
+.showtimesmain #map { width: 375px; height: 533px; margin-top: 0; }
+.showtimesmain #map.loading { background: url(https://trailers.apple.com/trailers/global/images/showtimes/showtimes-dark-ajax-spinner.gif) no-repeat 50% 50%; }
+
+.showtimesmain #map .mapview { width: 375px; height: 533px; margin-top: 0; }
+
+.showtimesmain #map .mapview.ready { border: 1px solid #000; *z-index: 5 !important; *position: relative !important; }
+
+.showtimesmain #map .mapview.ready div:first-child { *z-index: 3 !important; *position: absolute !important; }
+
+.showtimesmain #map .infobox { font-family: "Helvetica Neue", "Helvetica", "Myriad Pro", "Myriad", "Arial", "Lucida Grande", "sans-serif"; width: 195px; height: 137px; padding: 17px 25px 40px; background: url(https://trailers.apple.com/trailers/global/images/showtimes/showtimes-map-infobox.png) no-repeat; cursor: default; }
+
+.showtimesmain #map .infobox h4, .showtimesmain #map .infobox h3 { margin: 0; font-size: 13px; line-height: 1.2em; color: #fff; }
+
+.showtimesmain #map .infobox h4 { margin-top: 10px; font-weight: normal; }
+
+.showtimesmain #map .infobox p { margin: 5px 0 .6em; font-size: 11px; color: #ddd; line-height: 1.6em; }
+
+.showtimesmain #map .infobox p.directions { margin: 0; }
+
+.showtimesmain #map .infobox p .quals { color: #777; }
+
+.showtimesmain #map .infobox p a { color: #0af; }
+
+.showtimesmain #map .infobox input[type="text"] { width: 185px; }
+
+.showtimesmain #map .infobox.teir-1 { height: 117px; background-image: url(https://trailers.apple.com/trailers/global/images/showtimes/showtimes-map-infobox-short.png); }
+
+.showtimesmain #map .infobox.teir-3 { height: 163px; background-image: url(https://trailers.apple.com/trailers/global/images/showtimes/showtimes-map-infobox-long.png); }
+
+/*  -------------------- Pagination --------------------*/
+.showtimesmain .pagination { position: absolute; z-index: 2; width: 540px; }
+
+.showtimesmain .pagination li { float: right; background: none; display: block; }
+
+.showtimesmain .pagination li.prev_button { float: left; }
+
+.showtimesmain .pagination li a { color: #186b99; white-space: nowrap; zoom: 1; font-size: 1.1em; font-family: "Helvetica Neue", "Helvetica", "Arial", "Sans-Serif"; }
+
+.showtimesmain .pagination li.next_button a { padding-right: 10px; background: url(https://trailers.apple.com/trailers/global/elements/arrows/morearrow_08c.gif) no-repeat 100% 50%; }
+
+.showtimesmain .pagination li.prev_button a { padding-left: 10px; background: url(https://trailers.apple.com/trailers/global/elements/arrows/lessarrow_08c.gif) no-repeat 0 50%; }
+
+/*  -------------------- Pagination dots --------------------*/
+/*
+.showtimesmain .dots { text-align: center; position:absolute; width:540px;}
+.showtimesmain .dots li { display: inline; }
+.showtimesmain .dots li a { @include inline-block();; *display: block; *float: left; width: 7px; height: 7px; margin: 1px; background-color: #000; text-indent: -1000em; position: relative; z-index: 3; background: url(https://trailers.apple.com/trailers/global/images/showtimes/showtimes-pagination-dots.png) no-repeat; zoom: 1; -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px; body.body-white &{background-color:#bfbfbf}
+}
+.showtimesmain .dots li a:hover { background-position: 0 -10px; body.body-white &{background-position: 0 0;background-color:#a6a6a6}}
+.showtimesmain .dots li a.active { background-position: 0 -20px; cursor: default; body.body-white &{background-position: 0 0;background-color:#666}}
+*/
+/*  -------------------- Posters --------------------*/
+.showtimesmain .poster-list { min-height: 683px; }
+
+.showtimesmain .poster-list h3 { margin: 0; line-height: 1em; }
+
+.showtimesmain .poster-list p.subhead { line-height: 1.6em; }
+
+.showtimesmain .poster-list #posters { position: relative; margin-right: -6px; *z-index: -1; }
+
+.showtimesmain .poster-list #posters li { float: left; margin: 0 17px 15px 0; }
+
+.showtimesmain .poster-list #posters li.nth-3 { margin-right: 0; }
+
+.showtimesmain .poster-list #posters li .button { margin-left: 4px; }
+
+.showtimesmain .poster-list #posters li .button.gray { margin-left: 2px; }
+
+.showtimesmain .poster-list #posters li a.poster { display: block; text-decoration: none; width: 145px; }
+
+.showtimesmain .poster-list #posters li a.poster h5 { margin: 0; padding: 6px 0 0 5px; line-height: 1.6em; color: #ddd; width: 145px; height: 1.6em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; text-shadow: 1px 0 3px rgba(0, 0, 0, 0.75); font-size: 1em; }
+
+.showtimesmain .poster-list #posters li a.poster .frame { margin-bottom: -203px; -moz-opacity: 0; *display: none; opacity: 0; -webkit-transition: .25s opacity ease-out; }
+
+.showtimesmain .poster-list #posters li a.poster .poster-image { -webkit-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.63); -moz-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.63); position: relative; z-index: 2; *top: 5px; left: 5px; }
+
+.showtimesmain .poster-list #posters li a.poster:hover .frame { -moz-opacity: 1; *display: inline; opacity: 1; }
+
+.showtimesmain .poster-list #posters li a.poster:hover .poster-image { -webkit-box-shadow: none; -moz-box-shadow: none; }
+
+/*  -------------------- ToolTip --------------------*/
+.showtimesmain .posters-tooltip { color: #333; width: 167px; height: 38px; position: absolute; top: 0; left: 0; z-index: 1; text-align: center; line-height: 28px; -webkit-transition: opacity .25s ease-out; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75); background: url(https://trailers.apple.com/trailers/global/images/showtimes/showtimes-tooltip.png) no-repeat; z-index: 3; cursor: pointer; }
+
+/*  -------------------- Tickets Overlay --------------------*/
+.showtimesmain .tickets-popup { position: absolute; top: 38px; left: 116px; z-index: 3; -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px; border: 3px solid #fff; -webkit-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5); background: #111; background: rgba(0, 0, 0, 0.8); }
+
+.showtimesmain .tickets-popup ol { float: left; padding: 8px; }
+
+.showtimesmain .tickets-popup ol li { text-align: center; }
+
+.showtimesmain .tickets-popup ol li a { display: block; font-size: 1.17em; padding: .25em; color: #fff; }
+
+.showtimesmain .tickets-popup ol li a.disabled { color: #666; text-decoration: none; cursor: default; }
+
+/*  -------------------- Promofooter --------------------*/
+.showtimesmain #promofooter { *margin-top: 0; }
+
+/*  -------------------- City lookup --------------------*/
+.showtimesmain .relative { position: relative; }
+
+.showtimesmain .city-list { opacity: 0; -webkit-transition: opacity .25s ease-out; background-color: #c9c9c9; background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #cdcdcd), color-stop(1, white)); background-image: -moz-linear-gradient(center bottom, #cdcdcd 0%, white 100%); -webkit-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5); -moz-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5); padding: 6px 1px; -webkit-border-radius: 10px; border-right: 10px; -moz-border-radius: 10px; position: absolute; top: 20px; *top: 25px; left: 0; *left: 4px; z-index: 100; *display: none; *border: 1px solid #666; *border-bottom-width: 2px; }
+
+.showtimesmain #city-list2 { *left: 1px; }
+
+.showtimesmain .city-list.active { opacity: 1; *display: block; }
+
+.showtimesmain .city-list li { color: #454545; cursor: pointer; padding: 4px 10px; min-width: 150px; text-shadow: -1px 1px 0 rgba(255, 255, 255, 0.5); font-weight: normal; line-height: 1em; font-weight: bold; font-family: 'Helvetica', 'Arial', 'Lucida Grande', 'Sans-serif'; *width: 100%; font-size: 12px !important; }
+
+.showtimesmain .city-list li:hover { color: #08c; }
+
+.showtimesmain .city-list li.active { background-color: #3c8ad9; background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #2e77cf), color-stop(1, #54abe9)); background-image: -moz-linear-gradient(center bottom, #2e77cf 0%, #54abe9 100%); color: #fff; text-shadow: none; }
+
+.showtimesmain .relative input { width: 170px; }
+
+.showtimesmain .relative label { position: absolute; left: 10px; top: 0; *top: 4px; color: #a9a9a9 !important; font-size: .9em !important; font-weight: normal; cursor: text; }
+
+/*  -------------------- Postal Code Mesage --------------------*/
+.showtimesmain #zip_input_error { opacity: 0; pointer-events: none; -webkit-transition: opacity .25s ease-out; -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px; border: 3px solid #fff; -webkit-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5); background: #111; background: rgba(0, 0, 0, 0.8); padding: 6px 6px; position: absolute; top: 20px; *top: 25px; left: 8px; *left: 4px; z-index: 99; *display: none; *border: 1px solid #666; *border-bottom-width: 2px; color: yellow; font-weight: bold; white-space: nowrap; }
+
+.showtimesmain #zip_input_error.visible { opacity: 1; pointer-events: auto; }
+
+/* -- ROTTEN TOMATOES OVERLAY -- */
+.tomato { top: 87px; *top: 287px !important; }
+
+.showtimesmain .close-btn { text-align: center; font-size: 1.3em; float: left; margin-top: 30px; width: 100%; }
+
+.showtimesmain #applemap { width: 385px; height: 400px; }
+
+.showtimesmain div.landmark { width: 220px; height: 150px; padding: 20px 0px 5px 15px; font: 6px; color: white; border-radius: 5px; background-image: url(https://trailers.apple.com/trailers/global/images/showtimes/showtimes-map-infobox-short.png); background-repeat: no-repeat; }
+.showtimesmain div.landmark .markerTitle { font-size: 14px; color: white; }
+.showtimesmain div.landmark .markerInfo { margin: 5px 0px 0px, 0px; font-size: 11px; color: #ddd; line-height: 1.6em; }
+
+a#languageToggle { border-left: 1px solid #d0d0d0; color: #cccccc; margin-left: 10px; padding-left: 12px; }
+body.body-white a#languageToggle { border-left: 1px solid #e5e5e5; }
+a#languageToggle:hover { color: #fff; text-decoration: none; }
+
+/*--- Global Footer ---*/
+#globalfooter { width: 980px; color: #888; font-size: 10px; margin: 18px auto; padding-bottom: 50px; *padding-bottom: 30px; text-align: left !important; }
+
+#globalfooter p { margin-bottom: 1em; }
+
+#globalfooter ul.piped li { display: inline-block; float: left; }
+#globalfooter ul.piped a { padding: 0 0 0 1em; margin-left: 1.5em; border-left: 1px solid #d0d0d0; }
+#globalfooter ul.piped li:first-child a { border-left: none; }
+
+#globalfooter .gf-buy { float: left; margin: 18px 0 9px 3px; }
+
+#globalfooter .gf-links { float: right; margin: 18px 3px 9px 0; }
+#globalfooter .gf-links a { color: #cccccc; }
+
+#globalfooter .gf-top { border-bottom: 1px solid #2d2d2d; }
+#globalfooter .gf-top:after { content: ""; display: table; clear: both; }
+
+#globalfooter .gf-sosumi { display: block; margin: 18px 0 9px; }
+
+#globalfooter .gf-sosumi a { padding: 0 10px; color: #cccccc; }
+
+#globalfooter .gf-sosumi p { float: left; margin: 0 0 0 3px; }
+
+#globalfooter ul.piped a { color: #cccccc; }
+
+#globalfooter .gf-buy a { color: #cccccc; }
+
+#globalfooter ul.piped a.contact_us { padding-right: 1.5em; border-right: none; }
+
+#globalfooter ul.piped a.choose { margin-left: 0; border: 0; }
+
+#globalfooter ul.piped a.choose img { vertical-align: middle; margin-top: -5px; position: relative; }
+
+#globalfooter .cflag { float: right; color: #cccccc; }
+#globalfooter .cflag .flag-icon { float: left; padding-right: 5px; position: relative; top: 1px; }
+
+#globalfooter { margin-top: 18px; margin-bottom: 0; padding-bottom: 54px; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 11px; }
+body.body-white #globalfooter a { color: #666; }
+
+.footer-nav { display: block; width: auto; }
+
+.footer-nav h5 { margin: 0; font-weight: normal; color: #cccccc; }
+body.body-white .footer-nav h5 { color: #333333; }
+
+.footer-nav h5.footer-title { color: #ccc; font-size: 12px; font-weight: 300; line-height: 30px; padding: 0 20px; border: 1px solid #2d2d2d; background-color: #0d0d0d; -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px; }
+.footer-nav h5.footer-title a { color: #cccccc; }
+body.body-white .footer-nav h5.footer-title { border: 1px solid #e5e5e5; background-color: #FFFFFF; }
+body.body-white body.body-white .footer-nav h5.footer-title a { color: #666; }
+
+.footer-nav h5.list-header { color: #666; font-size: 12px; font-weight: 300; }
+body.body-white .footer-nav h5.list-header { font-weight: 400; }
+
+.footer-nav .column { display: inline-block; width: 15%; margin: 8px 1% 20px; line-height: 1.75em; vertical-align: top; }
+
+.footer-nav .column.first { margin-left: 30px !important; }
+
+.footer-nav .column a { color: #cccccc; font-weight: 300; line-height: 1.2em; }
+body.body-white .footer-nav .column a { color: #666666; }
+
+.itunes-footer { margin-top: 10px; padding-top: 6px; border-top: 1px solid rgba(69, 69, 69, 0.8); line-height: 1.2em; }
+body.body-white .itunes-footer { border-top: 1px solid rgba(229, 229, 229, 0.8); }
+
+.itunes-footer ul { min-width: 800px; float: left; }
+body.body-white .itunes-footer ul { color: #666; }
+
+.itunes-footer ul li { display: inline-block; padding-right: 4px; color: #fff; }
+body.body-white .itunes-footer ul li { color: #666; }
+
+.itunes-footer ul li.first { margin-left: 0; padding-left: 0; color: #999; }
+
+.itunes-footer ul li.pipe { border-left: 1px solid #999; text-indent: 8px; }
+body.body-white .itunes-footer ul li.pipe { border-color: #666; }
+
+.itunes-footer ul li a { color: #75bcfa; }
+body.body-white .itunes-footer ul li a { color: #666; }
+
+.dotnav { text-align: center; }
+
+html.touch .dotnav { pointer-events: none; }
+
+.dotnav ul { display: inline-block; }
+
+html.oldie .dotnav ul { display: inline; zoom: 1; }
+
+.dotnav li { list-style: none; margin: 010px; width: 8px; height: 8px; float: left; position: relative; }
+
+.dotnav .dotnav-item { top: 0; left: 0; width: 8px; height: 8px; outline: none; position: absolute; border-radius: 50%; background-color: #999; font: 0/0a; color: transparent; }
+
+html.no-js .dotnav .dotnav-item:hover { background-color: #666; }
+
+html.no-touch .dotnav .dotnav-item:hover { background-color: #666; }
+
+.dotnav .dotnav-item:focus { outline-style: auto; outline-color: #08c; }
+
+.dotnav .dotnav-item.active, .dotnav .dotnav-item.current { top: -1px; left: -1px; width: 8px; height: 8px; border-style: solid; border-width: 1px; border-color: #08c; background-color: transparent; cursor: default; }
+
+html.no-js .dotnav .dotnav-item.active:hover, html.no-js .dotnav .dotnav-item.current:hover { background-color: transparent; }
+
+html.no-touch .dotnav .dotnav-item.active:hover, html.no-touch .dotnav .dotnav-item.current:hover { background-color: transparent; }
+
+/*# sourceMappingURL=site.css.map */

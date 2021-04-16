@@ -1,0 +1,33 @@
+/*global define */
+
+define([
+  'marionette',
+  'templates/templates'
+], function (Marionette, templates) {
+  'use strict';
+
+  return Marionette.ItemView.extend({
+    template: templates.footer,
+    templateHelpers : {
+      getFlag: function(text){
+        return app.flag;
+      },
+      getCountry: function() {
+        return app.countryName;
+      }
+    },
+    events: {
+        "click #languageToggle": "clicked",
+    },
+    clicked: function(event){
+        event.preventDefault();
+        var oldLang = app.locale;
+        var newLang = (oldLang === 'en') ? 'fr': 'en';
+
+        Cookies.set('trailers_language', newLang, { expires: 7, path: '/' });
+
+        location.reload();
+    }
+  });
+
+});

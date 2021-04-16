@@ -1,0 +1,68 @@
+/*global define */
+
+define([
+	'marionette',
+	'templates/templates'
+], function (Marionette, templates) {
+	'use strict';
+
+	var menuClosed = true;
+
+	return Marionette.Layout.extend({
+		template: templates.main,
+		initialize: function(){
+			this.model.set('rating_count', _.size(this.model.get('movie_ratings')));
+		},
+		events: {
+			"click .OverlayPanel": "clicked",
+			"click .ratings": "toggleRatings",
+			"click .showtimes": "toggleShowtimes",
+		},
+		toggleShowtimes: function(e){
+			e.preventDefault();
+			if(menuClosed){
+				$('.view-showtimes-list').fadeIn('fast');
+				menuClosed = false;
+			}else
+				menuClosed = true;
+			$('body').on( "mousedown", function( event ) {
+				if(! $(event.target).closest('.view-showtimes-list').length){
+						$('.view-showtimes-list').hide();
+						$( this ).off( event );
+				}
+				if(! $(event.target).closest('.view-showtimes-list, .showtimes').length){
+						$('.view-showtimes-list').hide();
+						$( this ).off( event );
+						if(!menuClosed){
+							menuClosed = true;
+						}
+				}
+	        });
+		},
+		toggleRatings: function(e){
+			var container 	= $('.ratings-container');
+
+			container.show();
+
+			$('body').on( "mousedown", function( event ) {
+	          if(! $(event.target).closest('.ratings-container, .ratings').length ){
+	            container.hide();
+	            $( this ).off( event );
+	          }
+	        });
+
+		},
+		clicked: function(e){
+			e.preventDefault();
+			$('.view-showtimes-list').hide();
+			menuClosed = true;
+			var tms_id = $(e.target).attr('tms_id');
+			this.trigger('showimes:clicked', tms_id);
+		},
+		regions: {
+			header: "#content-header",
+			tabs: "#panel-tabs",
+			panels: "#content-panels"
+		}
+	});
+});

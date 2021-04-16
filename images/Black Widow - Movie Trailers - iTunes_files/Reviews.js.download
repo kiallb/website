@@ -1,0 +1,17 @@
+/*global define */
+
+define([
+	'marionette',
+	'templates/templates'
+], function (Marionette, templates) {
+	'use strict';
+
+	return Marionette.ItemView.extend({
+        templateHelpers: {
+        	htmlDecode: function(value) {
+        		return $("<textarea/>").html(value).text();
+        	}
+        },
+		template: templates.reviews
+	});
+});

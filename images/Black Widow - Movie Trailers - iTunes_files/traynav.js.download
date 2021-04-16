@@ -1,0 +1,139 @@
+
+;( function( $ )
+{
+
+    $.fn.traynav = function( params )
+    {
+        var options = $.extend( {}, $.tiny.scrollbar.options, params );
+
+        this.each( function()
+        {
+            $( this ).data('tn', new TrayNav( $( this ), options ) );
+        });
+
+        return this;
+    };
+
+    $.fn.traynav_update = function(sScroll)
+    {
+        return $( this ).data( 'tn' ).update( sScroll );
+    };
+
+    function TrayNav( root, options )
+    {
+        var oSelf           = this
+        ,   oWrapper        = root
+        ,   oViewport       = { obj: $( '.scroll-container', root ) }
+        ,   oContent        = { obj: $( '.scroll-content', root ) }
+        ,   oViewportWidth  = oViewport.obj.width()
+        ,   oNavs           = { obj: oContent.obj.children() }
+        ,   iCount          = oNavs.obj.length
+        ,   iNavWidth       = 300
+        ,   iWidth          = iCount*iNavWidth
+        ,   iFit            = 0
+        ,   iPaddles        = { left: $('.paddle-left', root), right: $('.paddle-right', root)}
+        ,   iDestination    = 0
+        ,   iScroll         = 0
+        ,   iPosition       = { start: 0, now: 0 }
+        ,   iPages          = []
+        ,   iPage           = 0
+        ,   iMouse          = {}
+        ,   touchEvents     = 'ontouchstart' in document.documentElement
+        ;
+
+        function initialize()
+        {
+            setContent();
+            iPaddles.left.on('click', function(){
+                setPage(iPage-1);
+            });
+            iPaddles.right.on('click', function(){
+                setPage(iPage+1);
+            });
+        }
+
+        function setContent()
+        {
+
+
+            iFit = Math.floor(oViewportWidth/iNavWidth);
+
+            var totalShowing    = Math.min(iFit, iCount);
+            var extraSpace      = oViewportWidth-(iFit*iNavWidth);
+            var orphans         = Math.max((iFit-totalShowing),0);
+
+            var marginWidth     = (extraSpace/iFit)/2;
+                marginWidth     = (orphans) ? marginWidth + (((orphans*iNavWidth)/totalShowing)/2) : marginWidth;
+
+            oNavs.obj.css('margin-left', marginWidth)
+            oNavs.obj.css('margin-right', marginWidth)
+
+            setPages();
+        }
+
+        function setPages()
+        {
+            var navArray = oNavs.obj.toArray();
+            for (var i = 0; i < iCount; i += iFit) {
+                iPages.push(navArray.slice(i, i + iFit));
+            }
+
+            oContent.obj.css( 'width', Math.max(iWidth, iPages.length*oViewportWidth));
+            oContent.obj.css( 'webkitTransition', 'all 0.7s ease');
+            oContent.obj.css( 'transition', 'all 0.7s ease');
+
+            setPage();
+        }
+
+        function setPage(page)
+        {
+
+            if(arguments.length){
+                var newPage     = Math.max(page,0),
+                    newPosition = 0;
+
+                iPage = (newPage < iPages.length) ? newPage : iPages.length;
+                newPosition = iPage*oViewportWidth;
+
+                oContent.obj.css( 'transform','translate(-'+newPosition+'px,0)')
+
+            }
+            setPaddles();
+
+        }
+
+        function setPaddles()
+        {
+            var totalPages = iPages.length;
+
+            if( totalPages > 1 )
+            {
+                switch(iPage)
+                {
+                    case 0:
+                        iPaddles.left.hide();
+                        iPaddles.right.show();
+                    break;
+
+                    case totalPages-1:
+                        iPaddles.right.hide();
+                        iPaddles.left.show();
+                    break
+
+                    default:
+                        iPaddles.right.show();
+                        iPaddles.left.show();
+                    break;
+                }
+            }
+            else
+            {
+                iPaddles.left.hide();
+                iPaddles.right.hide();
+            }
+        }
+
+        return initialize();
+    }
+
+}(jQuery));
